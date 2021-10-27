@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="现存问题 随着接口增多inner-api的rental模块中的接口变得愈发混乱，主要包括 1：url定义不规范和由于多人开发存在功能有交叉的接口 2：接口返回值没有文档规范或者其他能够明确描述的方式 3：当同时调用多个inner-api接口时由于未做并发优化反映到调用端时会有响应过慢的问题 4：开发时添加新接口会耗费比较多的精力重复编写模板代码，不够优雅   优化思路 沿用HTTP协议借鉴RPC的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于HTTP和动态代理实现的简单RPC">
+<meta property="og:url" content="http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="现存问题 随着接口增多inner-api的rental模块中的接口变得愈发混乱，主要包括 1：url定义不规范和由于多人开发存在功能有交叉的接口 2：接口返回值没有文档规范或者其他能够明确描述的方式 3：当同时调用多个inner-api接口时由于未做并发优化反映到调用端时会有响应过慢的问题 4：开发时添加新接口会耗费比较多的精力重复编写模板代码，不够优雅   优化思路 沿用HTTP协议借鉴RPC的">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-10-21T01:27:50.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.083Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="RPC">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>基于HTTP和动态代理实现的简单RPC</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/10/22/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3%E4%B9%8BGateway/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/09/16/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&text=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&is_video=false&description=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=基于HTTP和动态代理实现的简单RPC&body=Check out this article: http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&name=基于HTTP和动态代理实现的简单RPC&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&t=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#现存问题"><span class="toc-number">1.</span> <span class="toc-text">现存问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#优化思路"><span class="toc-number">2.</span> <span class="toc-text">优化思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#代码示例"><span class="toc-number">3.</span> <span class="toc-text">代码示例</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        基于HTTP和动态代理实现的简单RPC
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-10-21T01:27:50.000Z" itemprop="datePublished">2020-10-21</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/RPC/" rel="tag">RPC</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h4 id="现存问题"><a href="#现存问题" class="headerlink" title="现存问题"></a>现存问题</h4><ul>
+<li><p>随着接口增多inner-api的rental模块中的接口变得愈发混乱，主要包括</p>
+<p>1：url定义不规范和由于多人开发存在功能有交叉的接口</p>
+<p>2：接口返回值没有文档规范或者其他能够明确描述的方式</p>
+<p>3：当同时调用多个inner-api接口时由于未做并发优化反映到调用端时会有响应过慢的问题</p>
+<p>4：开发时添加新接口会耗费比较多的精力重复编写模板代码，不够优雅</p>
+</li>
+</ul>
+<h4 id="优化思路"><a href="#优化思路" class="headerlink" title="优化思路"></a>优化思路</h4><ul>
+<li>沿用HTTP协议借鉴RPC的设计思路通过代码封装简化现有的HTTP调用</li>
+<li>优化调用的前提需要先规范接口url，在此基础之上才可以通过动态代理等方式根据类名以及方法名自动拼装出url简化HTTP调用</li>
+<li>引用Gateway将PHP服务与内部服务隔离</li>
+</ul>
+<h4 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ZHGTenantsClient</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array $request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array $reply</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RPCClientNotImplementedException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getAll</span><span class="params">(array $request, array $reply = [<span class="string">'contactPhone'</span>])</span> </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RPCClientNotImplementedException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ZHGAsyncClient</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array $ids</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RPCClientNotImplementedException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTenantAndProject</span><span class="params">(array $ids = [<span class="string">'tenantId'</span> =&gt; null, <span class="string">'projectId'</span> =&gt; null])</span> </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RPCClientNotImplementedException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array $ids</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RPCClientNotImplementedException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTenantAndProjectAndMachine</span><span class="params">(array $ids = [<span class="string">'tenantId'</span> =&gt; null, <span class="string">'projectId'</span> =&gt; null, <span class="string">'machineId'</span> =&gt; <span class="number">998</span>])</span> </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RPCClientNotImplementedException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReflectionTest</span> <span class="keyword">extends</span> <span class="title">TestCase</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * A basic test example.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> void</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">testGetMethods</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $proxy = RPCProxy::getInstance(ZHGTenantsClient::class);</span><br><span class="line">        $reply = $proxy-&gt;getAll($request = [<span class="string">'contactPhone'</span> =&gt; <span class="string">'13913801948'</span>]);</span><br><span class="line">        Log::info(<span class="string">'$reply'</span>, [$reply]);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * A basic test example.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> void</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">testZHGAsyncClient</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $proxy1 = RPCProxy::getInstance(ZHGAsyncClient::class);</span><br><span class="line">        $reply1 = $proxy1-&gt;getTenantAndProject($ids = [<span class="string">'tenantId'</span> =&gt; <span class="number">1</span>, <span class="string">'projectId'</span> =&gt; <span class="number">1</span>]);</span><br><span class="line">        Log::info(<span class="string">'$reply1'</span>, [$reply1]);</span><br><span class="line">        Log::info(<span class="string">'$reply1'</span>, [$reply1[<span class="string">'tenant'</span>]]);</span><br><span class="line">        Log::info(<span class="string">'$reply1'</span>, [$reply1[<span class="string">'tenant'</span>]-&gt;contactName]);</span><br><span class="line">        Log::info(<span class="string">'$reply1'</span>, [$reply1[<span class="string">'project'</span>]]);</span><br><span class="line">        Log::info(<span class="string">'$reply1'</span>, [$reply1[<span class="string">'project'</span>]-&gt;projectName]);</span><br><span class="line"></span><br><span class="line">        $proxy2 = RPCProxy::getInstance(ZHGAsyncClient::class);</span><br><span class="line">        $reply2 = $proxy2-&gt;getTenantAndProjectAndMachine($ids = [<span class="string">'tenantId'</span> =&gt; <span class="number">1</span>, <span class="string">'projectId'</span> =&gt; <span class="number">1</span>, <span class="string">'machineId'</span> =&gt; <span class="number">998</span>]);</span><br><span class="line">        Log::info(<span class="string">'$reply2'</span>, [$reply2[<span class="string">'machine'</span>]]);</span><br><span class="line">        Log::info(<span class="string">'$reply2'</span>, [$reply2[<span class="string">'machine'</span>]-&gt;machineName]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RPCProxy</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">// 真实代理对象</span></span><br><span class="line">    <span class="keyword">private</span> $target;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建静态私有的变量保存该类对象</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">private</span> $instance;</span><br><span class="line">    <span class="comment">//防止使用new直接创建对象</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    <span class="comment">//防止使用clone克隆对象</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span><span class="params">($targetClass)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">//判断$instance是否是Singleton的对象，不是则创建</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">self</span>::$instance <span class="keyword">instanceof</span> <span class="keyword">self</span>) &#123;</span><br><span class="line">            <span class="keyword">self</span>::$instance = <span class="keyword">new</span> <span class="keyword">self</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>::$instance-&gt;target = $targetClass;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>::$instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">findRemoteMethodIndex</span><span class="params">($serviceAndMethodName)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> RPCUtils::getLastUpperCharIndex($serviceAndMethodName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">getRemoteHttpMethod</span><span class="params">($clientMethod)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $realMethodStartIndex = RPCUtils::getFirstUpperCharIndex($clientMethod);</span><br><span class="line">        <span class="keyword">return</span> strtoupper(substr($clientMethod, <span class="number">0</span>, $realMethodStartIndex));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">getAsyncMethodNames</span><span class="params">($className)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $realMethodStartIndex = RPCUtils::getFirstUpperCharIndex($className);</span><br><span class="line">        $methodNamesStr = substr($className, $realMethodStartIndex);</span><br><span class="line">        <span class="keyword">return</span> explode(RPCConst::ASYNC_METHOD_SPLIT, strtolower($methodNamesStr));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">getRemoteOperation</span><span class="params">($clientMethod)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $realMethodStartIndex = RPCUtils::getLastUpperCharIndex($clientMethod);</span><br><span class="line">        <span class="keyword">return</span> strtoupper(substr($clientMethod, $realMethodStartIndex));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $remoteHttpMethod</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $serviceName</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $remoteMethodName</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $remoteOperation</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $requestParam</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> \Psr\Http\Message\ResponseInterface</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> GuzzleException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">executeHttpRequest</span><span class="params">($remoteHttpMethod, $serviceName, $remoteMethodName, $remoteOperation, $requestParam)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">        $client = <span class="keyword">new</span> Client();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">switch</span> ($remoteOperation) &#123;</span><br><span class="line">                <span class="keyword">case</span> OperationEnum::ALL:</span><br><span class="line">                    <span class="keyword">return</span> $client-&gt;request($remoteHttpMethod, RPCConst::GATEWAY_HOST . <span class="string">"/$serviceName/$remoteMethodName/"</span>, [</span><br><span class="line">                        <span class="string">'json'</span> =&gt; $requestParam,</span><br><span class="line">                    ]);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> OperationEnum::ONE:</span><br><span class="line">                    <span class="keyword">return</span> $client-&gt;request($remoteHttpMethod, RPCConst::GATEWAY_HOST . <span class="string">"/$serviceName/$remoteMethodName/$requestParam"</span>);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">default</span>:</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> CanNotFindOperationException();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (GuzzleException $e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> $e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">remoteMethodName2urlPath</span><span class="params">($remoteMethodName)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (RPCUtils::strEndsWith($remoteMethodName, <span class="string">'s'</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> $remoteMethodName;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> $remoteMethodName . <span class="string">'s'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">executeAsyncHttpRequest</span><span class="params">($remoteHttpMethod, $serviceName, array $remoteMethodNames, $requestParam)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $client = <span class="keyword">new</span> Client([<span class="string">'base_uri'</span> =&gt; RPCConst::GATEWAY_HOST]);</span><br><span class="line"></span><br><span class="line">        $promises = collect();</span><br><span class="line">        <span class="keyword">foreach</span> ($remoteMethodNames <span class="keyword">as</span> $remoteMethodName) &#123;</span><br><span class="line">            $remoteUrl = <span class="keyword">$this</span>-&gt;remoteMethodName2urlPath($remoteMethodName);</span><br><span class="line">            $requestId = $requestParam[$remoteMethodName . <span class="string">'Id'</span>];</span><br><span class="line">            $promises-&gt;put($remoteMethodName, $client-&gt;getAsync(<span class="string">"/$serviceName/$remoteUrl/$requestId"</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> unwrap($promises-&gt;toArray());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">buildAsyncResponse</span><span class="params">($asyncHttpResp, $asyncMethodNames)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $jsonResp = collect();</span><br><span class="line">        <span class="keyword">foreach</span> ($asyncMethodNames <span class="keyword">as</span> $asyncMethodName) &#123;</span><br><span class="line">            $jsonResp-&gt;put($asyncMethodName, (object)json_decode($asyncHttpResp[$asyncMethodName]-&gt;getBody(), <span class="keyword">true</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> $jsonResp-&gt;toArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">buildResponse</span><span class="params">($httpResp, $remoteOperation, array $reply = null)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">        $jsonResp = json_decode($httpResp-&gt;getBody(), <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ($remoteOperation === OperationEnum::ONE) &#123;</span><br><span class="line">            $jsonResp = [$jsonResp];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ($reply) &#123;</span><br><span class="line">            $formatResp = collect($jsonResp)-&gt;map(<span class="function"><span class="keyword">function</span> <span class="params">($respItem)</span> <span class="title">use</span> <span class="params">($reply)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> (object)array_filter($respItem, <span class="function"><span class="keyword">function</span> <span class="params">($val, $key)</span> <span class="title">use</span> <span class="params">($reply)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> in_array($key, $reply);</span><br><span class="line">                &#125;, ARRAY_FILTER_USE_BOTH);</span><br><span class="line">            &#125;);</span><br><span class="line">            <span class="keyword">if</span> ($remoteOperation === OperationEnum::ONE) &#123;</span><br><span class="line">                <span class="keyword">return</span> $formatResp-&gt;first();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> $formatResp-&gt;toArray();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> $jsonResp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">isAsyncMethod</span><span class="params">($className)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> strpos(strtolower($className), RPCConst::ASYNC_SIGN) !== <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $name</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $args</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> array</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> GuzzleException</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RPCClientParameterIllegalException</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> \ReflectionException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span><span class="params">($name, $args)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            $ref = <span class="keyword">new</span> ReflectionClass(<span class="keyword">$this</span>-&gt;target);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取类名</span></span><br><span class="line">            $className = $ref-&gt;getShortName();</span><br><span class="line"></span><br><span class="line">            $serviceAndMethodName = substr($className, <span class="number">0</span>, strpos($className, RPCConst::CLIENT_NAME));</span><br><span class="line">            $lastMatch = <span class="keyword">$this</span>-&gt;findRemoteMethodIndex($serviceAndMethodName);</span><br><span class="line">            $serviceName = strtolower(substr($serviceAndMethodName, <span class="number">0</span>, $lastMatch));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;isAsyncMethod($className)) &#123;</span><br><span class="line">                $asyncMethodNames = <span class="keyword">$this</span>-&gt;getAsyncMethodNames($name);</span><br><span class="line">                $remoteHttpMethod = strtoupper(<span class="keyword">$this</span>-&gt;getRemoteHttpMethod($name));</span><br><span class="line">                $asyncHttpResp = <span class="keyword">$this</span>-&gt;executeAsyncHttpRequest($remoteHttpMethod, $serviceName, $asyncMethodNames, $args[<span class="number">0</span>]);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;buildAsyncResponse($asyncHttpResp, $asyncMethodNames);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                $remoteMethodName = strtolower(substr($serviceAndMethodName, $lastMatch));</span><br><span class="line">                $remoteHttpMethod = strtoupper(<span class="keyword">$this</span>-&gt;getRemoteHttpMethod($name));</span><br><span class="line">                $remoteOperation = strtolower(<span class="keyword">$this</span>-&gt;getRemoteOperation($name));</span><br><span class="line">                <span class="keyword">if</span> (count($args) === <span class="number">1</span>) &#123;</span><br><span class="line">                    $realMethod = $ref-&gt;getMethod($name);</span><br><span class="line">                    $parameters = $realMethod-&gt;getParameters();</span><br><span class="line">                    <span class="keyword">if</span> (count($parameters) === <span class="number">2</span>) &#123;</span><br><span class="line">                        $args[<span class="number">1</span>] = $parameters[<span class="number">1</span>]-&gt;getDefaultValue();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                $httpResp = <span class="keyword">$this</span>-&gt;executeHttpRequest($remoteHttpMethod, $serviceName, $remoteMethodName, $remoteOperation, $args[<span class="number">0</span>]);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;buildResponse($httpResp, $remoteOperation, count($args) &gt;= <span class="number">2</span> ? $args[<span class="number">1</span>] : <span class="keyword">null</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (\ReflectionException $e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> $e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#现存问题"><span class="toc-number">1.</span> <span class="toc-text">现存问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#优化思路"><span class="toc-number">2.</span> <span class="toc-text">优化思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#代码示例"><span class="toc-number">3.</span> <span class="toc-text">代码示例</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&text=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&is_video=false&description=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=基于HTTP和动态代理实现的简单RPC&body=Check out this article: http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&title=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&name=基于HTTP和动态代理实现的简单RPC&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/10/21/%E5%9F%BA%E4%BA%8EHTTP%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%9A%84%E7%AE%80%E5%8D%95RPC/&t=基于HTTP和动态代理实现的简单RPC" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

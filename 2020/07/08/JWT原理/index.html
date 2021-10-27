@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="JWT原理服务端认证完用户之后会生成一个JSON格式的Token发送给用户 Token格式如下 12345&amp;#123;  &quot;姓名&quot;: &quot;张三&quot;,  &quot;角色&quot;: &quot;管理员&quot;,  &quot;到期时间&quot;: &quot;2020年8月1日0点0分&quot;&amp;#125;  在此之后每次客户端请求服务端时都会带上这个Token，服务端只依靠此Token进行身份验证，为了防止信息配篡改Token中会加上信息签名。 JWT格式实际上的JW">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JWT原理">
+<meta property="og:url" content="http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="JWT原理服务端认证完用户之后会生成一个JSON格式的Token发送给用户 Token格式如下 12345&amp;#123;  &quot;姓名&quot;: &quot;张三&quot;,  &quot;角色&quot;: &quot;管理员&quot;,  &quot;到期时间&quot;: &quot;2020年8月1日0点0分&quot;&amp;#125;  在此之后每次客户端请求服务端时都会带上这个Token，服务端只依靠此Token进行身份验证，为了防止信息配篡改Token中会加上信息签名。 JWT格式实际上的JW">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-08T06:52:47.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.080Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="JWT">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>JWT原理</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/07/14/OAuth2-0%E5%8E%9F%E7%90%86/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/07/08/%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&text=JWT原理" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&is_video=false&description=JWT原理" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JWT原理&body=Check out this article: http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&name=JWT原理&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&t=JWT原理" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JWT原理"><span class="toc-number">1.</span> <span class="toc-text">JWT原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JWT格式"><span class="toc-number">1.0.1.</span> <span class="toc-text">JWT格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Header"><span class="toc-number">1.0.2.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Payload"><span class="toc-number">1.0.3.</span> <span class="toc-text">Payload</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Signature"><span class="toc-number">1.0.4.</span> <span class="toc-text">Signature</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JWT的特点"><span class="toc-number">1.1.</span> <span class="toc-text">JWT的特点</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        JWT原理
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-07-08T06:52:47.000Z" itemprop="datePublished">2020-07-08</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E8%AE%A4%E8%AF%81/">认证</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/JWT/" rel="tag">JWT</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="JWT原理"><a href="#JWT原理" class="headerlink" title="JWT原理"></a>JWT原理</h2><p>服务端认证完用户之后会生成一个<code>JSON</code>格式的<code>Token</code>发送给用户</p>
+<p><strong><code>Token</code>格式如下</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"姓名"</span>: <span class="string">"张三"</span>,</span><br><span class="line">  <span class="attr">"角色"</span>: <span class="string">"管理员"</span>,</span><br><span class="line">  <span class="attr">"到期时间"</span>: <span class="string">"2020年8月1日0点0分"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此之后每次客户端请求服务端时都会带上这个<code>Token</code>，服务端只依靠此<code>Token</code>进行身份验证，为了防止信息配篡改<code>Token</code>中会加上信息签名。</p>
+<h4 id="JWT格式"><a href="#JWT格式" class="headerlink" title="JWT格式"></a>JWT格式</h4><p>实际上的<code>JWT</code>格式如下</p>
+<p><code>eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNTk0MTkzODUwLCJleHAiOjE1OTQxOTU2NTB9.-HuaBI2JmXimeP55Vb8rUuB8yBPe9BMObdSvycTQ85nLwBCbFs2VlhSw0DqkO42i4dgn8yfjh0FynRSHQNKSWA</code></p>
+<p>它只是一个很长的字符串，其中用<code>.</code>分隔成三部分</p>
+<ul>
+<li><strong>Header（头部）</strong></li>
+<li><strong>Payload（负载）</strong></li>
+<li><strong>Signature（签名）</strong></li>
+</ul>
+<p>可以通过访问<a href="http://calebb.net/" target="_blank" rel="noopener">http://calebb.net/</a>解析这段<code>JWT</code>字符串</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	alg: &quot;HS512&quot;</span><br><span class="line">&#125;.</span><br><span class="line">&#123;</span><br><span class="line">	sub: &quot;test&quot;,</span><br><span class="line">	iat: 1594193850,</span><br><span class="line">	exp: 1594195650</span><br><span class="line">&#125;.</span><br><span class="line">[signature]</span><br></pre></td></tr></table></figure>
+
+<h4 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h4><p>header部分是一个 JSON 对象，描述 JWT 的元数据，<code>alg</code>属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256），<code>typ</code>属性表示这个令牌（token）的类型（type），JWT 令牌统一写为<code>JWT</code></p>
+<h4 id="Payload"><a href="#Payload" class="headerlink" title="Payload"></a>Payload</h4><p>ayload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段，供选用</p>
+<ol>
+<li>iss (issuer)：签发人</li>
+<li>exp (expiration time)：过期时间</li>
+<li>sub (subject)：主题</li>
+<li>aud (audience)：受众</li>
+<li>nbf (Not Before)：生效时间</li>
+<li>iat (Issued At)：签发时间</li>
+<li>jti (JWT ID)：编号</li>
+</ol>
+<h4 id="Signature"><a href="#Signature" class="headerlink" title="Signature"></a>Signature</h4><p>Signature 部分是对前两部分的签名，防止数据篡改。</p>
+<p>伪代码如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256</span><br><span class="line">(</span><br><span class="line">  base64UrlEncode(header) + <span class="string">"."</span> +</span><br><span class="line">  base64UrlEncode(payload) + <span class="string">"."</span> +</span><br><span class="line">  secret</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>首先，需要指定一个密钥（secret）。这个密钥只有服务器才知道，不能泄露给用户。然后，使用 Header 里面指定的签名算法（默认是 HMAC SHA256），按照下面的公式产生签名。算出签名以后，把 <strong>Header</strong>、<strong>Payload</strong>、<strong>Signature</strong> 三个部分拼成一个字符串，每个部分之间用”点”（<code>.</code>）分隔，就可以返回给用户</p>
+<h3 id="JWT的特点"><a href="#JWT的特点" class="headerlink" title="JWT的特点"></a><code>JWT</code>的特点</h3><ul>
+<li><code>JWT</code> 默认是不加密，但也是可以加密的。生成原始<code>Token</code> 以后，可以用密钥再加密一次</li>
+<li><code>JWT</code> 不加密的情况下，不能将秘密数据写入<code>JWT</code></li>
+<li><code>JWT</code>的最大缺点是，由于服务器不保存 <code>session</code>状态，因此无法在使用过程中废止某个 <code>Token</code>，或者更改 <code>Token</code> 的权限。也就是说，一旦 <code>JWT</code> 签发了，在到期之前就会始终有效，除非服务器部署额外的逻辑</li>
+<li><code>JWT</code>本身包含了认证信息，一旦泄露，任何人都可以获得该令牌的所有权限。为了减少盗用，<code>JWT</code>的有效期应该设置得比较短。对于一些比较重要的权限，使用时应该再次对用户进行认证</li>
+<li>为了减少盗用，JWT 不应该使用 HTTP 协议明码传输，要使用 HTTPS 协议传输</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JWT原理"><span class="toc-number">1.</span> <span class="toc-text">JWT原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JWT格式"><span class="toc-number">1.0.1.</span> <span class="toc-text">JWT格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Header"><span class="toc-number">1.0.2.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Payload"><span class="toc-number">1.0.3.</span> <span class="toc-text">Payload</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Signature"><span class="toc-number">1.0.4.</span> <span class="toc-text">Signature</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JWT的特点"><span class="toc-number">1.1.</span> <span class="toc-text">JWT的特点</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&text=JWT原理" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&is_video=false&description=JWT原理" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JWT原理&body=Check out this article: http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&title=JWT原理" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&name=JWT原理&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/08/JWT%E5%8E%9F%E7%90%86/&t=JWT原理" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

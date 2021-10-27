@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="非加密哈希算法在加密或者信息摘要中经常会使用到MD5、SHA之类的哈希算法，这类哈希算法最主要的特性就是不可逆以及需要线性的加密时间，这样就可以增加篡改和破解难度。非加密算法追求的则是计算哈希值的速度以及减少冲突率。 基本概念 哈希值 无论是内存容器中的下标位置还是分布式环境下的节点位置都可以通过哈希值定位，最简单的实现方式如下：如果是整数类型的key值可以通过取模获取哈希值，字符串可以通过叠加乘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一致性哈希算法">
+<meta property="og:url" content="http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="非加密哈希算法在加密或者信息摘要中经常会使用到MD5、SHA之类的哈希算法，这类哈希算法最主要的特性就是不可逆以及需要线性的加密时间，这样就可以增加篡改和破解难度。非加密算法追求的则是计算哈希值的速度以及减少冲突率。 基本概念 哈希值 无论是内存容器中的下标位置还是分布式环境下的节点位置都可以通过哈希值定位，最简单的实现方式如下：如果是整数类型的key值可以通过取模获取哈希值，字符串可以通过叠加乘">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-01.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-02.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-03.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-06.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-04.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-07.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-08.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-09.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-10.png">
+<meta property="article:published_time" content="2020-08-03T03:25:50.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.082Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="一致性哈希">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-01.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>一致性哈希算法</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/08/14/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/07/30/ThreadLocal%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&text=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&is_video=false&description=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=一致性哈希算法&body=Check out this article: http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&name=一致性哈希算法&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&t=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#非加密哈希算法"><span class="toc-number">1.</span> <span class="toc-text">非加密哈希算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#基本概念"><span class="toc-number">2.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#几种高效的哈希算法"><span class="toc-number">3.</span> <span class="toc-text">几种高效的哈希算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#普通哈希算法在分布式环境下的弊端"><span class="toc-number">4.</span> <span class="toc-text">普通哈希算法在分布式环境下的弊端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#一致性哈希算法原理"><span class="toc-number">5.</span> <span class="toc-text">一致性哈希算法原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#数据倾斜问题"><span class="toc-number">5.1.</span> <span class="toc-text">数据倾斜问题</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#虚拟节点"><span class="toc-number">5.2.</span> <span class="toc-text">虚拟节点</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        一致性哈希算法
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-08-03T03:25:50.000Z" itemprop="datePublished">2020-08-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E7%BC%93%E5%AD%98/">缓存</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C/" rel="tag">一致性哈希</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h4 id="非加密哈希算法"><a href="#非加密哈希算法" class="headerlink" title="非加密哈希算法"></a>非加密哈希算法</h4><p>在加密或者信息摘要中经常会使用到MD5、SHA之类的哈希算法，这类哈希算法最主要的特性就是不可逆以及需要线性的加密时间，这样就可以增加篡改和破解难度。非加密算法追求的则是计算哈希值的速度以及减少冲突率。</p>
+<h4 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h4><ul>
+<li><p>哈希值</p>
+<p>无论是内存容器中的下标位置还是分布式环境下的节点位置都可以通过哈希值定位，最简单的实现方式如下：如果是整数类型的key值可以通过取模获取哈希值，字符串可以通过叠加乘法获取哈希值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getHashCode</span><span class="params">(<span class="keyword">int</span> value, <span class="keyword">int</span> mod)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> Math.abs(value % mod);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getHashCode</span><span class="params">(String value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (Objects.isNull(value)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> h = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">char</span> ch : value.toCharArray()) &#123;</span><br><span class="line">        h = <span class="number">31</span> * h + ch;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">javaHashTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(getHashCode(<span class="number">24</span>, <span class="number">16</span>)); <span class="comment">// 8</span></span><br><span class="line">    System.out.println(getHashCode(<span class="string">"abcd"</span>)); <span class="comment">// 2987074</span></span><br><span class="line">    System.out.println(getHashCode(<span class="string">"abce"</span>)); <span class="comment">// 2987075</span></span><br><span class="line">    System.out.println(getHashCode(<span class="string">"192.168.1.177"</span>)); <span class="comment">// -2051273035</span></span><br><span class="line">    System.out.println(getHashCode(<span class="string">"192.168.1.178"</span>)); <span class="comment">// -2051273034</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>哈希碰撞</p>
+<p>因为不同key值的哈希值有可能相同，所以会有一定概率出现哈希冲突的情况，通常有两个解决哈希冲突的方式：拉链法和开发地址法</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-01.png" alt="一致性哈希算法-01"></p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-02.png" alt="一致性哈希算法-02"></p>
+</li>
+<li><p>负载因子</p>
+<p>最大可容纳的数据量与容器实际大小的比值就是负载因子，经研究发现负载因子与冲突率成正比，通常情况下将负载因子设为0.75是性价比最高的做法</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-03.png" alt="一致性哈希算法-03"></p>
+</li>
+</ul>
+<h4 id="几种高效的哈希算法"><a href="#几种高效的哈希算法" class="headerlink" title="几种高效的哈希算法"></a>几种高效的哈希算法</h4><ul>
+<li><p>MurmurHash</p>
+<blockquote>
+<p>MurmurHash因其出色的性能，已经被Redis，Memcached，Cassandra，HBase，Lucene等著名项目采用</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mix32</span><span class="params">(<span class="keyword">int</span> k, <span class="keyword">int</span> hash)</span> </span>&#123;</span><br><span class="line">    k *= -<span class="number">862048943</span>;</span><br><span class="line">    k = Integer.rotateLeft(k, <span class="number">15</span>);</span><br><span class="line">    k *= <span class="number">461845907</span>;</span><br><span class="line">    hash ^= k;</span><br><span class="line">    <span class="keyword">return</span> Integer.rotateLeft(hash, <span class="number">13</span>) * <span class="number">5</span> + -<span class="number">430675100</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">fmix32</span><span class="params">(<span class="keyword">int</span> length, <span class="keyword">int</span> hash)</span> </span>&#123;</span><br><span class="line">    hash ^= length;</span><br><span class="line">    hash ^= hash &gt;&gt;&gt; <span class="number">16</span>;</span><br><span class="line">    hash *= -<span class="number">2048144789</span>;</span><br><span class="line">    hash ^= hash &gt;&gt;&gt; <span class="number">13</span>;</span><br><span class="line">    hash *= -<span class="number">1028477387</span>;</span><br><span class="line">    hash ^= hash &gt;&gt;&gt; <span class="number">16</span>;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hash32</span><span class="params">(<span class="keyword">byte</span>[] data, <span class="keyword">int</span> offset, <span class="keyword">int</span> length, <span class="keyword">int</span> seed)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> hash = seed;</span><br><span class="line">    <span class="keyword">int</span> nblocks = length &gt;&gt; <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> idx;</span><br><span class="line">    <span class="keyword">int</span> k1;</span><br><span class="line">    <span class="keyword">for</span>(idx = <span class="number">0</span>; idx &lt; nblocks; ++idx) &#123;</span><br><span class="line">        k1 = idx &lt;&lt; <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">int</span> k = data[offset + k1] &amp; <span class="number">255</span> | (data[offset + k1 + <span class="number">1</span>] &amp; <span class="number">255</span>) &lt;&lt; <span class="number">8</span> | (data[offset + k1 + <span class="number">2</span>] &amp; <span class="number">255</span>) &lt;&lt; <span class="number">16</span> | (data[offset + k1 + <span class="number">3</span>] &amp; <span class="number">255</span>) &lt;&lt; <span class="number">24</span>;</span><br><span class="line">        hash = mix32(k, hash);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    idx = nblocks &lt;&lt; <span class="number">2</span>;</span><br><span class="line">    k1 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">switch</span>(length - idx) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">            k1 ^= data[offset + idx + <span class="number">2</span>] &lt;&lt; <span class="number">16</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">            k1 ^= data[offset + idx + <span class="number">1</span>] &lt;&lt; <span class="number">8</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">            k1 ^= data[offset + idx];</span><br><span class="line">            k1 *= -<span class="number">862048943</span>;</span><br><span class="line">            k1 = Integer.rotateLeft(k1, <span class="number">15</span>);</span><br><span class="line">            k1 *= <span class="number">461845907</span>;</span><br><span class="line">            hash ^= k1;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> fmix32(length, hash);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hash32</span><span class="params">(String data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] origin = data.getBytes();</span><br><span class="line">    <span class="keyword">return</span> hash32(origin, <span class="number">0</span>, origin.length, <span class="number">104729</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">murmurHashTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(hash32(<span class="string">"abcd"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="普通哈希算法在分布式环境下的弊端"><a href="#普通哈希算法在分布式环境下的弊端" class="headerlink" title="普通哈希算法在分布式环境下的弊端"></a>普通哈希算法在分布式环境下的弊端</h4><p>已数据分库为例，假设我们将一个user表拆分到4个库，利用user_id % 4进行分发。如果此时需要扩容一台数据库5</p>
+<ul>
+<li>扩容前</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>user_id</th>
+<th>哈希值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1000,1004,1008,1012</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1001,1005,1009,1013</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1002,1006,1010,1014</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1003,1007,1011</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<ul>
+<li>扩容后</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>user_id</th>
+<th>哈希值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1000,1005,1010</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1001,1006,1011</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1002,1007,1012</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1003,1008,1013</td>
+<td>3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1004,1009,1014</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<p>这时会发现调整后有大量的user对应的数据库与调整期不一致，此时如果想要保证数据可用则需要进行大量的数据迁移。</p>
+<h4 id="一致性哈希算法原理"><a href="#一致性哈希算法原理" class="headerlink" title="一致性哈希算法原理"></a>一致性哈希算法原理</h4><p>一致性哈希算法就是为了解决分布式环境下普通哈希算法的弊端，其目的就是为了能够在扩容或者缩容时尽量减少数据迁移。因为通常情况下哈希值都是使用int四字节的整数进行存储的，所以就选用0~2^31-1这么一个无符号整形的数据范围抽象的表示出一个哈希环。</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-06.png" alt="一致性哈希算法-06"></p>
+<p>然后将数据库所在服务器的IP地址，或者是相关服务的IP+端口号经过某种Hash函数获取到对应的哈希值，通过此哈希值映射到哈希环的某个位置。当请求数据比如此处的user_id到达服务端时，也通过同样的Hash函数获取到对应的哈希值，通过这个哈希值顺时针获取到最近的服务位置。</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-04.png" alt="一致性哈希算法-04"></p>
+<p>这样做的优点是什么呢？</p>
+<ol>
+<li><p>当我们需要扩容时，正好扩容的机器11.1.211.8:8080被分配到了11.1.211.1:8080前面，扩容之后受影响的机器只有11.1.211.1:8080这一台，只需要将11.1.211.8:8080~11.1.211.1:8080之间的这部分user数据迁移到11.1.211.8:8080上，对其他节点并不会产生影响。</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-07.png" alt="一致性哈希算法-07"></p>
+</li>
+<li><p>当我们需要缩容时，例如我们需要移除11.1.211.1:8080，那么只需要将11.1.211.7:8080~11.1.211.1:8080之间的user数据迁移到11.1.211.2:8080上就可以了。</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-08.png" alt="一致性哈希算法-08"></p>
+</li>
+</ol>
+<h5 id="数据倾斜问题"><a href="#数据倾斜问题" class="headerlink" title="数据倾斜问题"></a>数据倾斜问题</h5><p>当哈希环中的服务节点分布不均时，很容易造成大量数据堆积到某个节点，而其他节点只能接收到少量数据。</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-09.png" alt="一致性哈希算法-09"></p>
+<h5 id="虚拟节点"><a href="#虚拟节点" class="headerlink" title="虚拟节点"></a>虚拟节点</h5><p>这时就可以对一个服务节点的IP地址添加一定的标识数据计算多个Hash函数，例如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hash(<span class="string">"11.1.211.1#A"</span>) % <span class="number">2</span>^<span class="number">32</span></span><br><span class="line">hash(<span class="string">"11.1.211.2#B"</span>) % <span class="number">2</span>^<span class="number">32</span></span><br></pre></td></tr></table></figure>
+
+<p>这时就可以增加哈希环中的节点数量使得节点分布更加均匀，但是虚拟节点的数据依然会被存储到对应的真是节点，并不影响整体结构。</p>
+<p><img src="https://beancookie.github.io/images/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95-10.png" alt="一致性哈希算法-10"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#非加密哈希算法"><span class="toc-number">1.</span> <span class="toc-text">非加密哈希算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#基本概念"><span class="toc-number">2.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#几种高效的哈希算法"><span class="toc-number">3.</span> <span class="toc-text">几种高效的哈希算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#普通哈希算法在分布式环境下的弊端"><span class="toc-number">4.</span> <span class="toc-text">普通哈希算法在分布式环境下的弊端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#一致性哈希算法原理"><span class="toc-number">5.</span> <span class="toc-text">一致性哈希算法原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#数据倾斜问题"><span class="toc-number">5.1.</span> <span class="toc-text">数据倾斜问题</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#虚拟节点"><span class="toc-number">5.2.</span> <span class="toc-text">虚拟节点</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&text=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&is_video=false&description=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=一致性哈希算法&body=Check out this article: http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&title=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&name=一致性哈希算法&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/08/03/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95/&t=一致性哈希算法" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

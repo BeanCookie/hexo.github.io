@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Spring Security概述Spring Security的核心原理就是运用Filters在请求之前对请求进行验证和过滤从而保证资源安全  JWT核心配置 最主要的配置就是需要实现一个继承自WebSecurityConfigurerAdapter的Bean  1234567891011121314151617181920212223242526272829303132333435363738">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JWT实践之Spring Security">
+<meta property="og:url" content="http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="Spring Security概述Spring Security的核心原理就是运用Filters在请求之前对请求进行验证和过滤从而保证资源安全  JWT核心配置 最主要的配置就是需要实现一个继承自WebSecurityConfigurerAdapter的Bean  1234567891011121314151617181920212223242526272829303132333435363738">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://beancookie.github.io/images/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpringSecurity-01.png">
+<meta property="article:published_time" content="2020-07-21T02:44:26.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.080Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="JWT">
+<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="Spring Security">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beancookie.github.io/images/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpringSecurity-01.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>JWT实践之Spring Security</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/07/17/Flink-DataStream-API-%E7%BC%96%E7%A8%8B/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&text=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&is_video=false&description=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JWT实践之Spring Security&body=Check out this article: http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&name=JWT实践之Spring Security&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&t=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-Security概述"><span class="toc-number">1.</span> <span class="toc-text">Spring Security概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JWT核心配置"><span class="toc-number">2.</span> <span class="toc-text">JWT核心配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#运用投票器实现动态鉴权"><span class="toc-number">3.</span> <span class="toc-text">运用投票器实现动态鉴权</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        JWT实践之Spring Security
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-07-21T02:44:26.000Z" itemprop="datePublished">2020-07-21</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E8%AE%A4%E8%AF%81/">认证</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/JWT/" rel="tag">JWT</a>, <a class="tag-link" href="/tags/Spring/" rel="tag">Spring</a>, <a class="tag-link" href="/tags/Spring-Security/" rel="tag">Spring Security</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h4 id="Spring-Security概述"><a href="#Spring-Security概述" class="headerlink" title="Spring Security概述"></a>Spring Security概述</h4><p><strong>Spring Security</strong>的核心原理就是运用Filters在请求之前对请求进行验证和过滤从而保证资源安全</p>
+<p><img src="https://beancookie.github.io/images/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpringSecurity-01.png" alt="https://beancookie.github.io/images/JWT实践之SpringSecurity-01.png"></p>
+<h4 id="JWT核心配置"><a href="#JWT核心配置" class="headerlink" title="JWT核心配置"></a>JWT核心配置</h4><ol>
+<li>最主要的配置就是需要实现一个继承自<strong>WebSecurityConfigurerAdapter</strong>的<strong>Bean</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableGlobalMethodSecurity</span>(prePostEnabled = <span class="keyword">true</span>, jsr250Enabled = <span class="keyword">true</span>)</span><br><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        http.authorizeRequests()</span><br><span class="line">                <span class="comment">// 忽略所有OPTIONS类型的请求</span></span><br><span class="line">                .antMatchers(HttpMethod.OPTIONS).permitAll()</span><br><span class="line">                <span class="comment">// 忽略登录请求</span></span><br><span class="line">                .antMatchers(<span class="string">"/api/auth/login"</span>, <span class="string">"/api/auth/refresh"</span>).permitAll()</span><br><span class="line">                <span class="comment">// 拦截剩余的所有请求</span></span><br><span class="line">                .anyRequest().authenticated()</span><br><span class="line">                <span class="comment">// 使用自定义的 accessDecisionManager</span></span><br><span class="line">                .accessDecisionManager(accessDecisionManager())</span><br><span class="line">                .and()</span><br><span class="line">                .exceptionHandling()</span><br><span class="line">                .accessDeniedHandler(restfulAccessDeniedHandler())</span><br><span class="line">                .authenticationEntryPoint(restAuthenticationEntryPoint())</span><br><span class="line">                .and()</span><br><span class="line">                .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">                .<span class="title">cors</span>()</span></span><br><span class="line"><span class="class">                .<span class="title">and</span>()</span></span><br><span class="line"><span class="class">                .<span class="title">csrf</span>().<span class="title">disable</span>()</span></span><br><span class="line"><span class="class">                .<span class="title">sessionManagement</span>().<span class="title">sessionCreationPolicy</span>(<span class="title">SessionCreationPolicy</span>.<span class="title">STATELESS</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JwtTokenFilter <span class="title">jwtTokenFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> JwtTokenFilter();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RestfulAccessDeniedHandler <span class="title">restfulAccessDeniedHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestfulAccessDeniedHandler();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RestAuthenticationEntryPoint <span class="title">restAuthenticationEntryPoint</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestAuthenticationEntryPoint();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AuthenticationManager <span class="title">authenticationManager</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.authenticationManager();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 指定bcrypt算法进行密码加密</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PasswordEncoder <span class="title">passwordEncoder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BCryptPasswordEncoder();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 自定义permission投票器</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AccessDecisionVoter&lt;FilterInvocation&gt; <span class="title">accessDecisionProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AccessDecisionProcessor();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AccessDecisionManager <span class="title">accessDecisionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 构造一个新的AccessDecisionManager 放入两个投票器</span></span><br><span class="line">        List&lt;AccessDecisionVoter&lt;?&gt;&gt; decisionVoters = Arrays.asList(<span class="keyword">new</span> WebExpressionVoter(), accessDecisionProcessor());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> UnanimousBased(decisionVoters);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在Spring Security中使用<strong>JWT</strong>非常简单只需要自定义一个<strong>JWT Filter</strong>就可以了</li>
+<li>在定义<strong>Filter</strong>之前还需要创建一个<strong>JWT</strong>的解析器</li>
+</ol>
+<blockquote>
+<p>使用 jjwt 进行解析</p>
+</blockquote>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">compile <span class="string">'io.jsonwebtoken:jjwt-impl'</span></span><br><span class="line">compile <span class="string">'io.jsonwebtoken:jjwt-jackson'</span></span><br><span class="line"></span><br><span class="line">compile <span class="string">'cn.hutool:hutool-all'</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JwtProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> JwtProperties jwtProperties;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从request中获取token</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Optional&lt;String&gt; <span class="title">getTokenFromRequest</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        String authorization = request.getHeader(jwtProperties.getRequestHeader());</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotEmpty(authorization)) &#123;</span><br><span class="line">            <span class="keyword">return</span> Optional.of(authorization.substring(jwtProperties.getTokenPrefix().length()));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Optional.empty();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从token中拿到负载信息</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Claims <span class="title">getClaimsFromToken</span><span class="params">(String token)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Jwts.parserBuilder()</span><br><span class="line">                .deserializeJsonWith(<span class="keyword">new</span> JacksonDeserializer&lt;&gt;())</span><br><span class="line">                .base64UrlDecodeWith(Decoders.BASE64)</span><br><span class="line">                .setSigningKey(KEY)</span><br><span class="line">                .build()</span><br><span class="line">                .parseClaimsJws(token)</span><br><span class="line">                .getBody();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从token中获取subject</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> token</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Optional&lt;String&gt; <span class="title">getSubjectFromToken</span><span class="params">(String token)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotEmpty(token)) &#123;</span><br><span class="line">            Claims claims = <span class="keyword">this</span>.getClaimsFromToken(token);</span><br><span class="line">            <span class="keyword">if</span> (Objects.nonNull(claims)) &#123;</span><br><span class="line">                <span class="keyword">return</span> Optional.ofNullable(claims.getSubject());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Optional.empty();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据UserDetail生成jwt，并封装成AccessToken</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> userDetail</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AccessToken <span class="title">createToken</span><span class="params">(UserDetails userDetail)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.createToken(userDetail.getUsername());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据subject生成jwt，并封装成AccessToken</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> subject</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AccessToken <span class="title">createToken</span><span class="params">(String subject)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 当前时间</span></span><br><span class="line">        <span class="keyword">final</span> Date now = <span class="keyword">new</span> Date();</span><br><span class="line">        <span class="comment">// 过期时间</span></span><br><span class="line">        <span class="keyword">final</span> Date expirationDate = <span class="keyword">new</span> Date(now.getTime() + jwtProperties.getExpirationTime() * <span class="number">1000</span>);</span><br><span class="line">        String token = Jwts.builder()</span><br><span class="line">                .serializeToJsonWith(<span class="keyword">new</span> JacksonSerializer&lt;&gt;())</span><br><span class="line">                .base64UrlEncodeWith(Encoders.BASE64)</span><br><span class="line">                .setSubject(subject)</span><br><span class="line">                .setIssuedAt(now)</span><br><span class="line">                .setExpiration(expirationDate)</span><br><span class="line">                .signWith(KEY)</span><br><span class="line">                .compact();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> AccessToken.builder()</span><br><span class="line">                .loginAccount(subject)</span><br><span class="line">                .token(token)</span><br><span class="line">                .expirationTime(expirationDate)</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证token是否有效</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> token</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> userDetails</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">validateToken</span><span class="params">(String token, UserDetails userDetails)</span> </span>&#123;</span><br><span class="line">        Claims claims = <span class="keyword">this</span>.getClaimsFromToken(token);</span><br><span class="line">        <span class="keyword">return</span> claims.getSubject().equals(userDetails.getUsername()) &amp;&amp; !<span class="keyword">this</span>.isTokenExpired(claims);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断jwt时效性</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> claims</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isTokenExpired</span><span class="params">(Claims claims)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> claims.getIssuedAt().before(<span class="keyword">new</span> Date());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断token在指定时间内是否刚刚刷新过</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">tokenRefreshJustBefore</span><span class="params">(Claims claims)</span> </span>&#123;</span><br><span class="line">        Date refreshDate = <span class="keyword">new</span> Date();</span><br><span class="line">        <span class="comment">//刷新时间在创建时间的指定时间内</span></span><br><span class="line">        <span class="keyword">if</span> (refreshDate.after(claims.getExpiration()) &amp;&amp; refreshDate.before(DateUtil.offsetSecond(claims.getExpiration(), jwtProperties.getExpirationTime()))) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AccessToken <span class="title">refreshToken</span><span class="params">(String token)</span> </span>&#123;</span><br><span class="line">        Claims claims = <span class="keyword">this</span>.getClaimsFromToken(token);</span><br><span class="line">        <span class="comment">//如果token在30分钟之内刚刷新过，返回原token</span></span><br><span class="line">        <span class="keyword">if</span> (tokenRefreshJustBefore(claims)) &#123;</span><br><span class="line">            <span class="keyword">return</span> AccessToken.builder()</span><br><span class="line">                    .loginAccount(claims.getSubject())</span><br><span class="line">                    .token(token)</span><br><span class="line">                    .expirationTime(claims.getExpiration()).build();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> createToken(claims.getSubject());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通过定义定义OncePerRequestFilter拦截器可以实现在每个请求之前检查Request Header中的JWT token</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JwtTokenFilter</span> <span class="keyword">extends</span> <span class="title">OncePerRequestFilter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> JwtProvider jwtProvider;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> AuthService authService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doFilterInternal</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        Optional&lt;String&gt; authToken = jwtProvider.getTokenFromRequest(request);</span><br><span class="line">        authToken.ifPresent(token -&gt; &#123;</span><br><span class="line">            Optional&lt;String&gt; subject = jwtProvider.getSubjectFromToken(token);</span><br><span class="line">            <span class="keyword">if</span> (subject.isPresent()</span><br><span class="line">                &amp;&amp; Objects.isNull(SecurityContextHolder.getContext().getAuthentication())</span><br><span class="line">            ) &#123;</span><br><span class="line">                UserDetail userDetail = authService.login(subject.get(), <span class="keyword">null</span>);</span><br><span class="line">                <span class="keyword">if</span> (Objects.nonNull(userDetail) &amp;&amp; jwtProvider.validateToken(token, userDetail)) &#123;</span><br><span class="line">                    <span class="comment">// 后面的拦截器里面会用到 grantedAuthorities 方法</span></span><br><span class="line">                    UsernamePasswordAuthenticationToken authentication = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(userDetail, userDetail.getPassword(), userDetail.getAuthorities());</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 将authentication信息放入到上下文对象中</span></span><br><span class="line">                    SecurityContextHolder.getContext().setAuthentication(authentication);</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        filterChain.doFilter(request, response);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>最后再定义Rest接口对外提供登陆/登出和刷新Token的接口</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/api/auth"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> AuthService authService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> JwtProvider jwtProvider;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping</span>(<span class="string">"/login"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> R&lt;AccessToken&gt; <span class="title">login</span><span class="params">(@Valid @RequestBody LoginQuery loginQuery)</span> </span>&#123;</span><br><span class="line">        UserDetail userDetail = authService.login(loginQuery.getLoginAccount(), loginQuery.getPassword());</span><br><span class="line">        AccessToken accessToken = jwtProvider.createToken(userDetail);</span><br><span class="line">        <span class="keyword">return</span> R.success(accessToken);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping</span>(<span class="string">"/logout"</span>)</span><br><span class="line">    <span class="keyword">public</span> R&lt;?&gt; logout() &#123;</span><br><span class="line">        authService.logout();</span><br><span class="line">        <span class="keyword">return</span> R.success();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping</span>(<span class="string">"/refresh"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> R&lt;AccessToken&gt; <span class="title">refresh</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        AccessToken accessToken = authService.refresh(jwtProvider.getTokenFromRequest(request).orElseThrow(AuthorizationException::<span class="keyword">new</span>));</span><br><span class="line">        <span class="keyword">return</span> R.success(accessToken);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="运用投票器实现动态鉴权"><a href="#运用投票器实现动态鉴权" class="headerlink" title="运用投票器实现动态鉴权"></a>运用投票器实现动态鉴权</h4><p>Spring Security使用投票器进行鉴权，我们可以定义多个投票器对每个请求进行鉴定，每个投票器可以返回一票<strong>反对</strong> <strong>通过</strong> <strong>弃权</strong>，最后通过统计票数判断请求是否具有权限。再定义投票器之前需要定义权限表并与角色进行关联，权限表中需要包含请求的URL和Http方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccessDecisionProcessor</span> <span class="keyword">implements</span> <span class="title">AccessDecisionVoter</span>&lt;<span class="title">FilterInvocation</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> Cache&lt;String, PermissionBO&gt; permissionCache;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">supports</span><span class="params">(ConfigAttribute attribute)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">supports</span><span class="params">(Class&lt;?&gt; clazz)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">vote</span><span class="params">(Authentication authentication, FilterInvocation invocation, Collection&lt;ConfigAttribute&gt; attributes)</span> </span>&#123;</span><br><span class="line">        String url = invocation.getRequestUrl();</span><br><span class="line">        String method = invocation.getRequest().getMethod();</span><br><span class="line">        String cacheKey = String.format(<span class="string">"%s:%s"</span>, url, method);</span><br><span class="line">        PermissionBO permissionBO = permissionCache.get(cacheKey);</span><br><span class="line">        <span class="keyword">if</span> (Objects.isNull(permissionBO)) &#123;</span><br><span class="line">            <span class="keyword">return</span> ACCESS_ABSTAIN;</span><br><span class="line">        &#125;</span><br><span class="line">        UserDetail userDetail = (UserDetail) authentication.getPrincipal();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (Objects.nonNull(userDetail) &amp;&amp; userDetail.getRoles().contains(permissionBO.getRoleCode())) &#123;</span><br><span class="line">            <span class="keyword">return</span> ACCESS_GRANTED;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ACCESS_DENIED;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableGlobalMethodSecurity</span>(prePostEnabled = <span class="keyword">true</span>, jsr250Enabled = <span class="keyword">true</span>)</span><br><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 自定义permission投票器</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AccessDecisionVoter&lt;FilterInvocation&gt; <span class="title">accessDecisionProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AccessDecisionProcessor();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AccessDecisionManager <span class="title">accessDecisionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 构造一个新的AccessDecisionManager 放入两个投票器</span></span><br><span class="line">        List&lt;AccessDecisionVoter&lt;?&gt;&gt; decisionVoters = Arrays.asList(<span class="keyword">new</span> WebExpressionVoter(), accessDecisionProcessor());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> UnanimousBased(decisionVoters);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-Security概述"><span class="toc-number">1.</span> <span class="toc-text">Spring Security概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JWT核心配置"><span class="toc-number">2.</span> <span class="toc-text">JWT核心配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#运用投票器实现动态鉴权"><span class="toc-number">3.</span> <span class="toc-text">运用投票器实现动态鉴权</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&text=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&is_video=false&description=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JWT实践之Spring Security&body=Check out this article: http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&title=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&name=JWT实践之Spring Security&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/&t=JWT实践之Spring Security" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

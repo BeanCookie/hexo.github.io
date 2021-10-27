@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="批处理与流计算 SQL时代 从数据工程师的角度看待问题，软件系统核心价值在于数据，系统中的一系列功能业务都是围绕着如何对数据进行这种关联和聚合操作，最终总结出有价值的数据展现给用户。在RDBMS时期一系列围绕着SQL操作构建了最初的批处理时代。   MapReduce时代 随着信息时代的到来，人类产生的信息数据不断呈指数级增长，RDBMS已经越来越难以满足大量的非结构化数据的存储要求，如何实现一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink初探">
+<meta property="og:url" content="http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="批处理与流计算 SQL时代 从数据工程师的角度看待问题，软件系统核心价值在于数据，系统中的一系列功能业务都是围绕着如何对数据进行这种关联和聚合操作，最终总结出有价值的数据展现给用户。在RDBMS时期一系列围绕着SQL操作构建了最初的批处理时代。   MapReduce时代 随着信息时代的到来，人类产生的信息数据不断呈指数级增长，RDBMS已经越来越难以满足大量的非结构化数据的存储要求，如何实现一个">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-04.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-03.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-02.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-06.jpg">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-05.jpg">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-07.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-08.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-09.jpg">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-10.jpg">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-13.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-12.jpg">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-11.jpg">
+<meta property="article:published_time" content="2020-06-14T09:36:26.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.079Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="Flink">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-04.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Flink初探</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/07/08/%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&text=Flink初探" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&is_video=false&description=Flink初探" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Flink初探&body=Check out this article: http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&name=Flink初探&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&t=Flink初探" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#批处理与流计算"><span class="toc-number">1.</span> <span class="toc-text">批处理与流计算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL时代"><span class="toc-number">1.0.1.</span> <span class="toc-text">SQL时代</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MapReduce时代"><span class="toc-number">1.0.2.</span> <span class="toc-text">MapReduce时代</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#流处理时代"><span class="toc-number">1.0.3.</span> <span class="toc-text">流处理时代</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stream与DAG"><span class="toc-number">2.</span> <span class="toc-text">Stream与DAG</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#编程语言中的容器"><span class="toc-number">2.1.</span> <span class="toc-text">编程语言中的容器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Filter"><span class="toc-number">2.1.1.</span> <span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Map"><span class="toc-number">2.1.2.</span> <span class="toc-text">Map</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FlatMap"><span class="toc-number">2.1.3.</span> <span class="toc-text">FlatMap</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Average"><span class="toc-number">2.1.4.</span> <span class="toc-text">Average</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Reduce"><span class="toc-number">2.1.5.</span> <span class="toc-text">Reduce</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#并行计算中的操作单元"><span class="toc-number">2.2.</span> <span class="toc-text">并行计算中的操作单元</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#把大象装进冰箱"><span class="toc-number">3.</span> <span class="toc-text">把大象装进冰箱</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三个时间"><span class="toc-number">4.</span> <span class="toc-text">三个时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#时间窗口"><span class="toc-number">5.</span> <span class="toc-text">时间窗口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无状态与有状态"><span class="toc-number">6.</span> <span class="toc-text">无状态与有状态</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#无状态"><span class="toc-number">6.0.1.</span> <span class="toc-text">无状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#有状态"><span class="toc-number">6.0.2.</span> <span class="toc-text">有状态</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Flink初探
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-06-14T09:36:26.000Z" itemprop="datePublished">2020-06-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%AE%9E%E6%97%B6%E8%AE%A1%E7%AE%97/">实时计算</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Flink/" rel="tag">Flink</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="批处理与流计算"><a href="#批处理与流计算" class="headerlink" title="批处理与流计算"></a>批处理与流计算</h2><ul>
+<li><h4 id="SQL时代"><a href="#SQL时代" class="headerlink" title="SQL时代"></a>SQL时代</h4><blockquote>
+<p>从数据工程师的角度看待问题，软件系统核心价值在于数据，系统中的一系列功能业务都是围绕着如何对数据进行这种关联和聚合操作，最终总结出有价值的数据展现给用户。在RDBMS时期一系列围绕着SQL操作构建了最初的批处理时代。</p>
+</blockquote>
+</li>
+<li><h4 id="MapReduce时代"><a href="#MapReduce时代" class="headerlink" title="MapReduce时代"></a>MapReduce时代</h4><blockquote>
+<p>随着信息时代的到来，人类产生的信息数据不断呈指数级增长，RDBMS已经越来越难以满足大量的非结构化数据的存储要求，如何实现一个可靠的分布式文件系统成为当务之急，以Google GFS为核心实现的各种分布式文件系统成为现代数据仓库的标配，有老牌的Hadoop体系全家桶，也有Mongo为代表的各种NoSQL。有了可靠的分布式文件系统之后如何进行数据计算呢，依旧是Google提出的MapReduce成为了大数据蛮荒时代的第一束光，随之而来的还有大数据时代中一个很重要的思想<strong>移动计算比移动数据更划算</strong>，这个思想可以简单的理解为<em>我们会把编写的程序分发到数据的各个节点，然后经过一系列的操作再将计算结果汇总到某个主节点</em>。Spark也是在这个思想的基础上使用DAG模型简化了MapReduce的操作，使用迭代式的内存计算优化了计算性能。Mongo作为NoSQL的杰出代表也提供了pipeline从而实现了更强的聚合能力。</p>
+</blockquote>
+</li>
+<li><h4 id="流处理时代"><a href="#流处理时代" class="headerlink" title="流处理时代"></a>流处理时代</h4><blockquote>
+<p>业务需求是永无止境的，或者是业务需求推动了计算进步</p>
+<ol>
+<li>当淘宝上某个店家上架了某款商品后期望在三分钟内就可以在搜索框中检索出最新的商品时</li>
+<li>当滴滴用户想在五秒钟之内就可以搜索到附件的车辆时</li>
+<li>当蚂蚁金服风控团队想把异常交易的响应时间缩短到秒级时</li>
+<li>当个个电商想在活动促销时实时展现各种销售数据时</li>
+<li>当智鹤的产品团队想展现各类机械的实时运转情况，想将各类报表的实时性提高到分钟级别时</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h2 id="Stream与DAG"><a href="#Stream与DAG" class="headerlink" title="Stream与DAG"></a>Stream与DAG</h2><ul>
+<li><h3 id="编程语言中的容器"><a href="#编程语言中的容器" class="headerlink" title="编程语言中的容器"></a>编程语言中的容器</h3><blockquote>
+<p>任何一门编程语言都会将容器融入到自身的血脉之中，例如在我们学习一门新的编程语言时当了解我if else for之后大概率就会接着学习数组、字典之类的内置数据容器。最初大多数编程语言只是封装了一些通用数据结构例如可变长数组、Set、Map等，但是随着时间的推移大家发现单纯的数据结构难以解决稍微复杂一点的数据统计问题。纵观多数编程语言以及很多函数式编程的概念，大家都异曲同工的选择了一组Stream风格的API来进行复杂的数据统计操作。</p>
+</blockquote>
+<ul>
+<li><h4 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h4><blockquote>
+<p>数据过滤操作，对应SQL中的Where条件</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<img src="https://beancookie.github.io/images/Flink初探-04.png" alt="Flink初探-04" style="zoom: 80%;" />
+
+<ul>
+<li><h4 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h4><blockquote>
+<p>数据转换操作，对应SQL中的Select</p>
+</blockquote>
+</li>
+</ul>
+<img src="https://beancookie.github.io/images/Flink初探-03.png" alt="Flink初探-03" style="zoom:80%;" />
+
+<ul>
+<li><h4 id="FlatMap"><a href="#FlatMap" class="headerlink" title="FlatMap"></a>FlatMap</h4><blockquote>
+<p>获取一个元素然后产生0个、1个或多个输出</p>
+</blockquote>
+</li>
+</ul>
+<img src="https://beancookie.github.io/images/Flink初探-02.png" alt="Flink初探-02" style="zoom: 50%;" />
+
+<ul>
+<li><h4 id="Average"><a href="#Average" class="headerlink" title="Average"></a>Average</h4><blockquote>
+<p>获取一组数据平均数的聚合操作</p>
+</blockquote>
+</li>
+</ul>
+<img src="https://beancookie.github.io/images/Flink初探-06.jpg" alt="Flink初探-06" style="zoom:80%;" />
+
+<ul>
+<li><h4 id="Reduce"><a href="#Reduce" class="headerlink" title="Reduce"></a>Reduce</h4><blockquote>
+<p>这是一种聚合操作的抽象表达方式，可以通过<strong>Reduce</strong>实现<strong>Sum</strong>、<strong>Average</strong>、<strong>Min</strong>和<strong>Max</strong>等聚合操作</p>
+</blockquote>
+</li>
+</ul>
+<img src="https://beancookie.github.io/images/Flink初探-05.jpg" alt="Flink初探-05" style="zoom:80%;" />
+
+<ul>
+<li><h3 id="并行计算中的操作单元"><a href="#并行计算中的操作单元" class="headerlink" title="并行计算中的操作单元"></a>并行计算中的操作单元</h3></li>
+</ul>
+<blockquote>
+<p>随着数据量的不断增长，当到了单机内存无法无法存储的时候就需要对Stream的模型进行改造。首先在逻辑上会采用DAG（Directed Acyclic Graph、有向无环图），一般情况下数据计算引擎会采用数据驱动的方式，它会提前设置一些算子，然后等到数据到达后对数据进行处理，为了表达复杂的计算逻辑，包括 Flink 在内的分布式流处理引擎一般采用 DAG 图来表示整个计算逻辑，其中 DAG 图中的每一个点就代表一个基本的逻辑单元，也就是前面说的算子。由于计算逻辑被组织成有向图，数据会按照边的方向，从一些特殊的 Source 节点流入系统，然后通过网络传输、本地传输等不同的数据传输方式在算子之间进行发送和处理，最后会通过另外一些特殊的 Sink 节点将计算结果发送到某个外部系统或数据库中。计算引擎内部的物理结构通常会更复杂，DAG中的每个算子都可以是多个物理节点。</p>
+</blockquote>
+<p><img src="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-07.png" alt="Flink初探-07"></p>
+<h2 id="把大象装进冰箱"><a href="#把大象装进冰箱" class="headerlink" title="把大象装进冰箱"></a>把大象装进冰箱</h2><blockquote>
+<p>上文中提到的数据驱动方式，数据处理过程可以抽象为数据从Source然后经过一系列的计算最后通过Sink输出到外部系统。在这个前提下大多数的带有简单分析聚合的ETL系统，都可以把分析工作分为三步，从数据源获取原始数据，经过计算引擎的分析处理，最后输出到外部系统。</p>
+</blockquote>
+<img src="https://beancookie.github.io/images/Flink初探-08.png" alt="Flink初探-08" style="zoom:67%;" />
+
+<p><img src="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-09.jpg" alt="Flink初探-09"></p>
+<h2 id="三个时间"><a href="#三个时间" class="headerlink" title="三个时间"></a>三个时间</h2><blockquote>
+<p>分布式环境中 Time 是一个很重要的概念，Event-Time 表示事件发生的时间，Processing-Time 则表示处理消息的时间，Ingestion-Time 表示进入到系统的时间。</p>
+</blockquote>
+<p><img src="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-10.jpg" alt="Flink初探-10"></p>
+<h2 id="时间窗口"><a href="#时间窗口" class="headerlink" title="时间窗口"></a>时间窗口</h2><blockquote>
+<p>真实世界中的大多数数据都是已流的形式输出的，例如终端上传的数据、用户操作日志和电商交易记录等。所以真实的数据通常是没有边界的，在批处理时代通常会将无线的数据人为的划分成多个有边界的数据然后进行离线处理。</p>
+</blockquote>
+<img src="https://beancookie.github.io/images/Flink初探-13.png" alt="Flink初探-13" style="zoom:67%;" />
+
+<blockquote>
+<p>因为大多数的业务需求都是要对一段时间的数据进行统计，比如多种时间维度的工时日报、传感器的日增长量和机械开工率变化曲线等。流计算中入了Window的概念，这里的Window可以是按时间间隔定义的，也可以是按事件数量定义的。Window的移动方式又可以分为滚动窗口和滑动窗口。</p>
+</blockquote>
+<p><img src="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-12.jpg" alt="Flink初探-12"></p>
+<blockquote>
+<p>如何处理迟到的时间，因为多种原因数据源产生的数据可能存在延时的情况，这样就会导致当前的Window可能接收到上个Window的数据，但是此时前一个Window已经触发的计算操作，这样就会导致Window数据丢失。这种情况下流计算引入了水位线的概念，设置了水位线之后呢可以延长窗口计算的时间，从而保障数据完整性，当然数据完整性和实时性很多情况下不能兼得。</p>
+</blockquote>
+<p><img src="https://beancookie.github.io/images/Flink%E5%88%9D%E6%8E%A2-11.jpg" alt="Flink初探-11"></p>
+<h2 id="无状态与有状态"><a href="#无状态与有状态" class="headerlink" title="无状态与有状态"></a>无状态与有状态</h2><ul>
+<li><h4 id="无状态"><a href="#无状态" class="headerlink" title="无状态"></a>无状态</h4><blockquote>
+<p>大多数CURD的程序，其程序本身没有状态，每次接口调用都是从外部数据库获取状态。在这种业务场景中我们并没有觉得这有什么不妥，因为这种场景下的核心业务就是围绕着外部状态展开的。</p>
+</blockquote>
+</li>
+<li><h4 id="有状态"><a href="#有状态" class="headerlink" title="有状态"></a>有状态</h4><blockquote>
+<p>但是在实时流计算中很多窗口数据都需要长期保持或者定期更新，这种情况下将状态数据保持在外部数据库诸如Redis之类，虽然一定程度上可以保证实时性，但是手动管理大量的外部数据对于开发人员将会是很大的负担。另一方面流计算是必须保证7<em>24不间断运行的，任何的版本上线和bug修复都不容许数据丢失。此时我们再看Flink的官方定义 *Apache Flink is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams.</em> <em>Apache Flink是一个框架和分布式处理引擎，用于对无限制和有限制的数据流进行有状态的计算。</em>回顾Flink的诸多特性安全可靠的内部状态管理机制绝对是Flink对标其他竞品时的杀手锏。</p>
+</blockquote>
+</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#批处理与流计算"><span class="toc-number">1.</span> <span class="toc-text">批处理与流计算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL时代"><span class="toc-number">1.0.1.</span> <span class="toc-text">SQL时代</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MapReduce时代"><span class="toc-number">1.0.2.</span> <span class="toc-text">MapReduce时代</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#流处理时代"><span class="toc-number">1.0.3.</span> <span class="toc-text">流处理时代</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stream与DAG"><span class="toc-number">2.</span> <span class="toc-text">Stream与DAG</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#编程语言中的容器"><span class="toc-number">2.1.</span> <span class="toc-text">编程语言中的容器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Filter"><span class="toc-number">2.1.1.</span> <span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Map"><span class="toc-number">2.1.2.</span> <span class="toc-text">Map</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FlatMap"><span class="toc-number">2.1.3.</span> <span class="toc-text">FlatMap</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Average"><span class="toc-number">2.1.4.</span> <span class="toc-text">Average</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Reduce"><span class="toc-number">2.1.5.</span> <span class="toc-text">Reduce</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#并行计算中的操作单元"><span class="toc-number">2.2.</span> <span class="toc-text">并行计算中的操作单元</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#把大象装进冰箱"><span class="toc-number">3.</span> <span class="toc-text">把大象装进冰箱</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三个时间"><span class="toc-number">4.</span> <span class="toc-text">三个时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#时间窗口"><span class="toc-number">5.</span> <span class="toc-text">时间窗口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无状态与有状态"><span class="toc-number">6.</span> <span class="toc-text">无状态与有状态</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#无状态"><span class="toc-number">6.0.1.</span> <span class="toc-text">无状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#有状态"><span class="toc-number">6.0.2.</span> <span class="toc-text">有状态</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&text=Flink初探" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&is_video=false&description=Flink初探" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Flink初探&body=Check out this article: http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&title=Flink初探" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&name=Flink初探&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/06/14/Flink%E5%88%9D%E6%8E%A2/&t=Flink初探" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

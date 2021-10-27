@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="异常处理 捕获异常是为了处理它，不要捕获了却什么都不处理而抛弃之，如果不想处理它，请 将该异常抛给它的调用者。最外层的业务使用者，必须处理异常，将其转化为用户可以理解的 内容 123456789101112&#x2F;&#x2F; 反例try &amp;#123;    ...&amp;#125; catch (Exception e) &amp;#123;&amp;#125;&#x2F;&#x2F; 正例try &amp;#123;    ...&amp;#125; catch (">
+<meta property="og:type" content="article">
+<meta property="og:title" content="异常处理与日志规约最佳实践">
+<meta property="og:url" content="http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="异常处理 捕获异常是为了处理它，不要捕获了却什么都不处理而抛弃之，如果不想处理它，请 将该异常抛给它的调用者。最外层的业务使用者，必须处理异常，将其转化为用户可以理解的 内容 123456789101112&#x2F;&#x2F; 反例try &amp;#123;    ...&amp;#125; catch (Exception e) &amp;#123;&amp;#125;&#x2F;&#x2F; 正例try &amp;#123;    ...&amp;#125; catch (">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-15T01:18:01.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.084Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="编码规范">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>异常处理与日志规约最佳实践</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/05/12/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%9F%B3%E4%B9%8BRPC-%E4%B8%89/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&text=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&is_video=false&description=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=异常处理与日志规约最佳实践&body=Check out this article: http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&name=异常处理与日志规约最佳实践&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&t=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#异常处理"><span class="toc-number">1.</span> <span class="toc-text">异常处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日志规约"><span class="toc-number">2.</span> <span class="toc-text">日志规约</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        异常处理与日志规约最佳实践
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-05-15T01:18:01.000Z" itemprop="datePublished">2020-05-15</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83/" rel="tag">编码规范</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><ol>
+<li><p>捕获异常是为了处理它，不要捕获了却什么都不处理而抛弃之，如果不想处理它，请</p>
+<p>将该异常抛给它的调用者。最外层的业务使用者，必须处理异常，将其转化为用户可以理解的</p>
+<p>内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    log.warn(e.getMessage());</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> XXXException(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>catch 时请分清稳定代码和非稳定代码，稳定代码指的是无论如何不会出错的代码。</p>
+<p>对于非稳定代码的 catch 尽可能进行区分异常类型，再做对应的异常处理</p>
+<blockquote>
+<p>对大段代码进行 try-catch，使程序无法根据不同的异常做出正确的应激反应，也不利于定位问题，<br>这是一种不负责任的表现</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    $client = <span class="keyword">new</span> Client();;</span><br><span class="line">    $url = <span class="string">"http://api.map.baidu.com/geocoder/v2/?ak=$this-&gt;ak&amp;output=json&amp;coordtype=bd09ll&amp;location="</span>;</span><br><span class="line"></span><br><span class="line">    $requests = function ($total) use ($client, $locations, $url) &#123;</span><br><span class="line">        foreach ($locations as $item) &#123;</span><br><span class="line">            $location = $item[<span class="number">0</span>] . <span class="string">','</span> . $item[<span class="number">1</span>];</span><br><span class="line">            $uri = $url . $location;</span><br><span class="line">            <span class="function">yield <span class="title">function</span> <span class="params">()</span> <span class="title">use</span> <span class="params">($client, $uri)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> $client-&gt;getAsync($uri);</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    $pool = <span class="keyword">new</span> Pool($client, $requests($<span class="keyword">this</span>-&gt;totalPageCount), [</span><br><span class="line">        <span class="string">'concurrency'</span> =&gt; $<span class="keyword">this</span>-&gt;concurrency,</span><br><span class="line">        <span class="string">'fulfilled'</span> =&gt; function ($response, $index) &#123;</span><br><span class="line"></span><br><span class="line">            $res = json_decode($response-&gt;getBody()-&gt;getContents());</span><br><span class="line">            <span class="keyword">if</span> ($res-&gt;status === <span class="number">0</span>) &#123;</span><br><span class="line">                $<span class="keyword">this</span>-&gt;address[$index] = $res-&gt;result-&gt;formatted_address . <span class="string">','</span> . $res-&gt;result-&gt;sematic_description;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> \Exception(<span class="string">'invalide data'</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">'rejected'</span> =&gt; function ($reason) &#123;</span><br><span class="line">            $<span class="keyword">this</span>-&gt;logSensorHandleExceptionError($reason);</span><br><span class="line">        &#125;,</span><br><span class="line">    ]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开始发送请求</span></span><br><span class="line">    $promise = $pool-&gt;promise();</span><br><span class="line">    $promise-&gt;wait();</span><br><span class="line">    <span class="keyword">return</span> $<span class="keyword">this</span>-&gt;address;</span><br><span class="line">&#125; <span class="keyword">catch</span> (\Exception $e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> \Exception(<span class="string">'逆地址请求错误!'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line"></span><br><span class="line">$client = <span class="keyword">new</span> Client();;</span><br><span class="line">$url = <span class="string">"http://api.map.baidu.com/geocoder/v2/?ak=$this-&gt;ak&amp;output=json&amp;coordtype=bd09ll&amp;location="</span>;</span><br><span class="line"></span><br><span class="line">$requests = function ($total) use ($client, $locations, $url) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        foreach ($locations as $item) &#123;</span><br><span class="line">            $location = $item[<span class="number">0</span>] . <span class="string">','</span> . $item[<span class="number">1</span>];</span><br><span class="line">            $uri = $url . $location;</span><br><span class="line">            <span class="function">yield <span class="title">function</span> <span class="params">()</span> <span class="title">use</span> <span class="params">($client, $uri)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> $client-&gt;getAsync($uri);</span><br><span class="line">      		&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (\Exception $e) &#123;</span><br><span class="line">    	<span class="keyword">throw</span> <span class="keyword">new</span> \Exception(<span class="string">'逆地址请求错误!'</span> . $e-&gt;getMessage());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">$pool = <span class="keyword">new</span> Pool($client, $requests($<span class="keyword">this</span>-&gt;totalPageCount), [</span><br><span class="line">    <span class="string">'concurrency'</span> =&gt; $<span class="keyword">this</span>-&gt;concurrency,</span><br><span class="line">    <span class="string">'fulfilled'</span> =&gt; function ($response, $index) &#123;</span><br><span class="line"></span><br><span class="line">        $res = json_decode($response-&gt;getBody()-&gt;getContents());</span><br><span class="line">        <span class="keyword">if</span> ($res-&gt;status === <span class="number">0</span>) &#123;</span><br><span class="line">            $<span class="keyword">this</span>-&gt;address[$index] = $res-&gt;result-&gt;formatted_address . <span class="string">','</span> . $res-&gt;result-&gt;sematic_description;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> \Exception(<span class="string">'invalide data'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">'rejected'</span> =&gt; function ($reason) &#123;</span><br><span class="line">        $<span class="keyword">this</span>-&gt;logSensorHandleExceptionError($reason);</span><br><span class="line">    &#125;,</span><br><span class="line">]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开始发送请求</span></span><br><span class="line">$promise = $pool-&gt;promise();</span><br><span class="line">$promise-&gt;wait();</span><br><span class="line"><span class="keyword">return</span> $<span class="keyword">this</span>-&gt;address;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="3">
+<li><p>Java 类库中定义的可以通过预检查方式规避的 RuntimeException 异常不应该通过</p>
+<p>catch 的方式来处理，比如：NullPointerException，IndexOutOfBoundsException 等等</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line">User user = getUser();</span><br><span class="line">List&lt;String&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    List&lt;RolePermissionMap&gt; rolePermissionMaps =</span><br><span class="line">        user.getUserRoleMap().getRole().getRolePermissionMaps();</span><br><span class="line">    <span class="keyword">for</span> (RolePermissionMap rolePermissionMap : rolePermissionMaps) &#123;</span><br><span class="line">        res.add(rolePermissionMap.getPermission().getName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">catch</span> (NullPointerException e) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line">User user = getUser();</span><br><span class="line">List&lt;String&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"><span class="keyword">if</span> (user != <span class="keyword">null</span> &amp;&amp; user.getUserRoleMap() != <span class="keyword">null</span>) &#123;</span><br><span class="line">    List&lt;RolePermissionMap&gt; rolePermissionMaps =</span><br><span class="line">        user.getUserRoleMap().getRole().getRolePermissionMaps();</span><br><span class="line">    <span class="keyword">for</span> (RolePermissionMap rolePermissionMap : rolePermissionMaps) &#123;</span><br><span class="line">        res.add(rolePermissionMap.getPermission().getName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> res;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>finally 块必须对资源对象、流对象进行关闭，有异常也要做 try-catch</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    BufferedInputStream in = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"xxx"</span>));</span><br><span class="line">    ...</span><br><span class="line">&#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line">BufferedInputStream in = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    in = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"xxx"</span>));</span><br><span class="line">    ...</span><br><span class="line">&#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (in != <span class="keyword">null</span>) &#123;</span><br><span class="line">            in.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Java7</span></span><br><span class="line"><span class="keyword">try</span>(BufferedInputStream in = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"xxx"</span>))) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>不要在 finally 块中使用 return</p>
+<blockquote>
+<p>try 块中的 return 语句执行成功后，并不马上返回，而是继续执行 finally 块中的语句，如果此处存</p>
+<p>在 return 语句，则在此直接返回，无情丢弃掉 try 块中的返回点</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">checkReturn</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">         <span class="comment">// x 等于 1，此处不返回</span></span><br><span class="line">         <span class="keyword">return</span> ++x;</span><br><span class="line">     &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">         <span class="comment">// 返回的结果是 2</span></span><br><span class="line">         <span class="keyword">return</span> ++x;</span><br><span class="line">     &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>异常不要用来做流程控制，条件控制</p>
+<blockquote>
+<p>异常设计的初衷是解决程序运行中的各种意外情况，且异常的处理效率比条件判断方式要低很多</p>
+</blockquote>
+</li>
+<li><p>防止 NPE，是程序员的基本修养</p>
+<blockquote>
+<ol>
+<li><p>返回类型为基本数据类型，return 包装数据类型的对象时，自动拆箱有可能产生 NPE。</p>
+<p> 反例：public int f() { return Integer 对象}， 如果为 null，自动解箱抛 NPE。 </p>
+</li>
+<li><p>数据库的查询结果可能为 null</p>
+</li>
+<li><p>集合里的元素即使 isNotEmpty，取出的数据元素也可能为 null</p>
+</li>
+<li><p>远程调用返回对象时，一律要求进行空指针判断，防止 NPE</p>
+</li>
+<li><p>对于 Session 中获取的数据，建议进行 NPE 检查，避免空指针</p>
+</li>
+<li><p>级联调用 obj.getA().getB().getC()；一连串调用，易产生 NPE</p>
+<p>Java8：Optional </p>
+<p>Laravel：optional</p>
+</li>
+</ol>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line">sheet.setVolume(record.getVolume().doubleValue());</span><br><span class="line">sheet.setCustomVolume(record.getCustomVolume().doubleValue());</span><br><span class="line"><span class="keyword">if</span> (record.getIsReset() == <span class="number">0</span>) &#123;</span><br><span class="line">    sheet.setRefuelVolume(record.getCustomVolume().doubleValue());</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    sheet.setRefuelVolume(record.getVolume().doubleValue());</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line"><span class="keyword">if</span> (Objects.nonNull(record.getVolume())) &#123;</span><br><span class="line">    sheet.setVolume(record.getVolume().doubleValue());</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (Objects.nonNull(record.getCustomVolume())) &#123;</span><br><span class="line">    sheet.setCustomVolume(record.getCustomVolume().doubleValue());</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (Objects.nonNull(record.getCustomVolume())) &#123;</span><br><span class="line">    <span class="keyword">if</span> (record.getIsReset() == <span class="number">0</span>) &#123;</span><br><span class="line">        sheet.setRefuelVolume(record.getCustomVolume().doubleValue());</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (Objects.nonNull(record.getVolume())) &#123;</span><br><span class="line">            sheet.setRefuelVolume(record.getVolume().doubleValue());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">toArray</span><span class="params">($request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> [</span><br><span class="line">        <span class="string">'id'</span> =&gt; <span class="keyword">$this</span>-&gt;id,</span><br><span class="line">        <span class="string">'machine'</span> =&gt; [</span><br><span class="line">            <span class="string">'id'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;id,</span><br><span class="line">            <span class="string">'name'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;machine_name,</span><br><span class="line">            <span class="string">'category'</span> =&gt; [</span><br><span class="line">                <span class="string">'id'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;category-&gt;id,</span><br><span class="line">                <span class="string">'name'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;category-&gt;category_name,</span><br><span class="line">            ],</span><br><span class="line">            <span class="string">'machineModel'</span> =&gt; [</span><br><span class="line">                <span class="string">'id'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;machineModel-&gt;id,</span><br><span class="line">                <span class="string">'name'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;machineModel-&gt;model_name,</span><br><span class="line">            ],</span><br><span class="line">            <span class="string">'brand'</span> =&gt; [</span><br><span class="line">                <span class="string">'id'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;brand-&gt;id,</span><br><span class="line">                <span class="string">'name'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;brand-&gt;brand_name,</span><br><span class="line">            ],</span><br><span class="line">            <span class="string">'imageCover'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;image_cover,</span><br><span class="line">            <span class="string">'certState'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;cert_state,</span><br><span class="line">        ],</span><br><span class="line">        <span class="string">'projectName'</span> =&gt; <span class="keyword">$this</span>-&gt;project-&gt;project_name,</span><br><span class="line">    ];</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">toArray</span><span class="params">($request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> [</span><br><span class="line">        <span class="string">'id'</span> =&gt; <span class="keyword">$this</span>-&gt;id,</span><br><span class="line">        <span class="string">'machine'</span> =&gt; [</span><br><span class="line">            <span class="string">'id'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;id,</span><br><span class="line">            <span class="string">'name'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;machine_name,</span><br><span class="line">            <span class="string">'category'</span> =&gt; [</span><br><span class="line">                <span class="string">'id'</span> =&gt; optional(<span class="keyword">$this</span>-&gt;machine-&gt;category)-&gt;id,</span><br><span class="line">                <span class="string">'name'</span> =&gt; optional(<span class="keyword">$this</span>-&gt;machine-&gt;category)-&gt;category_name,</span><br><span class="line">            ],</span><br><span class="line">            <span class="string">'machineModel'</span> =&gt; [</span><br><span class="line">                <span class="string">'id'</span> =&gt; optional(<span class="keyword">$this</span>-&gt;machine-&gt;machineModel)-&gt;id,</span><br><span class="line">                <span class="string">'name'</span> =&gt; optional(<span class="keyword">$this</span>-&gt;machine-&gt;machineModel)-&gt;model_name,</span><br><span class="line">            ],</span><br><span class="line">            <span class="string">'brand'</span> =&gt; [</span><br><span class="line">                <span class="string">'id'</span> =&gt; optional(<span class="keyword">$this</span>-&gt;machine-&gt;brand)-&gt;id,</span><br><span class="line">                <span class="string">'name'</span> =&gt; optional(<span class="keyword">$this</span>-&gt;machine-&gt;brand)-&gt;brand_name,</span><br><span class="line">            ],</span><br><span class="line">            <span class="string">'imageCover'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;image_cover,</span><br><span class="line">            <span class="string">'certState'</span> =&gt; <span class="keyword">$this</span>-&gt;machine-&gt;cert_state,</span><br><span class="line">        ],</span><br><span class="line">        <span class="string">'projectName'</span> =&gt; optional(<span class="keyword">$this</span>-&gt;project)-&gt;project_name,</span><br><span class="line">    ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<h2 id="日志规约"><a href="#日志规约" class="headerlink" title="日志规约"></a>日志规约</h2><ol>
+<li><p>生产环境禁止直接使用Java：System.out 或 System.err 输出日志或使用</p>
+<p>e.printStackTrace()打印异常堆栈，Php：echo或print，Python：print</p>
+<blockquote>
+<ol>
+<li><p>无法统一汇总</p>
+</li>
+<li><p>容易造成文件大小超过操作系统大小限制</p>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>异常信息应该包括两类信息：案发现场信息和异常堆栈信息。如果不处理，那么通过</p>
+<p>关键字 throws 往上抛出</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	...</span><br><span class="line">&#125; <span class="keyword">catch</span> (CustomCode200Exception customException) &#123;</span><br><span class="line">    log.error(<span class="string">"解绑失败"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	...</span><br><span class="line">&#125; <span class="keyword">catch</span> (CustomCode200Exception customException) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> CustomCode200Exception(customException.getCode(), customException.getMessage());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在日志输出时，字符串变量之间的拼接使用占位符的方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line">logger.debug(<span class="string">"Processing trade with id: "</span> + id + <span class="string">"and symbol: "</span> + symbol);</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line">logger.debug(<span class="string">"Processing trade with id: &#123;&#125; and symbol: &#123;&#125;"</span>, id, symbol);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反例</span></span><br><span class="line">Log::info(<span class="string">"Processing trade with id: "</span> . id . <span class="string">"and symbol: "</span> . symbol);</span><br><span class="line"><span class="comment">// 正例</span></span><br><span class="line">logger.debug(<span class="string">"Processing trade with id and symbol"</span>, [id, symbol]);</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="4">
+<li><p>应用中的扩展日志（如打点、临时监控、访问日志等）命名方式：appName_logType_logName.log。logType:日志类型，如 stats/monitor/access 等；logName:日志描述。这种命名的好处：通过文件名就可知道日志文件属于什么应用，什么类型，什么目的，也有利于归类查找。</p>
+<blockquote>
+<p>推荐对日志进行分类，如将错误日志和业务日志分开存放，便于开发人员查看，也便于通过日志对系</p>
+<p>统进行及时监控</p>
+</blockquote>
+</li>
+<li><p>日志打印时禁止直接用 JSON 工具将对象转换成 String</p>
+<blockquote>
+<p>如果对象里某些 get 方法被重写，存在抛出异常的情况，则可能会因为打印日志而影响正常业务流</p>
+<p>程的执行</p>
+</blockquote>
+</li>
+<li><p>谨慎地记录日志。生产环境禁止输出 debug 日志；有选择地输出 info 日志；如果使用</p>
+<p>warn 来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑</p>
+<p>爆，并记得及时删除这些观察日志</p>
+<blockquote>
+<p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些</p>
+<p>日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p>
+</blockquote>
+</li>
+<li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况，避免用户投诉时，无所适</p>
+<p>从。如非必要，请不要在此场景打出 error 级别，避免频繁报警</p>
+<blockquote>
+<p>注意日志输出的级别，error 级别只记录系统逻辑出错、异常或者重要的错误信息</p>
+</blockquote>
+</li>
+<li><p>尽量用英文来描述日志错误信息，如果日志中的错误信息用英文描述不清楚的话使用</p>
+<p>中文描述即可，否则容易产生歧义</p>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#异常处理"><span class="toc-number">1.</span> <span class="toc-text">异常处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日志规约"><span class="toc-number">2.</span> <span class="toc-text">日志规约</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&text=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&is_video=false&description=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=异常处理与日志规约最佳实践&body=Check out this article: http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&title=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&name=异常处理与日志规约最佳实践&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/&t=异常处理与日志规约最佳实践" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

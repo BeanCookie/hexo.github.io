@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="如何给经纬度加索引回顾一下经纬度的定义  纬度  某点与地球球心的连线和地球赤道面所成的线面角，其数值在0至90度之间   经度  某点离一根被称为本初子午线的南北方向走线以东或以西的度数    使用数据库存储经纬度  给定经纬度查找指定范围内的点  在点位相距不远的情况下可以忽略地球表面的弧度使用勾股定理计算距离 1SELECT id FROM positions WHERE x0 - r &amp;l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何给经纬度加索引">
+<meta property="og:url" content="http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="如何给经纬度加索引回顾一下经纬度的定义  纬度  某点与地球球心的连线和地球赤道面所成的线面角，其数值在0至90度之间   经度  某点离一根被称为本初子午线的南北方向走线以东或以西的度数    使用数据库存储经纬度  给定经纬度查找指定范围内的点  在点位相距不远的情况下可以忽略地球表面的弧度使用勾股定理计算距离 1SELECT id FROM positions WHERE x0 - r &amp;l">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-02.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-01.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-03.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-05.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-04.png">
+<meta property="article:published_time" content="2020-05-26T03:33:32.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.084Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-02.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>如何给经纬度加索引</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/06/14/Flink%E5%88%9D%E6%8E%A2/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/05/15/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%97%A5%E5%BF%97%E8%A7%84%E7%BA%A6%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&text=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&is_video=false&description=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=如何给经纬度加索引&body=Check out this article: http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&name=如何给经纬度加索引&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&t=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#如何给经纬度加索引"><span class="toc-number">1.</span> <span class="toc-text">如何给经纬度加索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#回顾一下经纬度的定义"><span class="toc-number">1.1.</span> <span class="toc-text">回顾一下经纬度的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用数据库存储经纬度"><span class="toc-number">1.2.</span> <span class="toc-text">使用数据库存储经纬度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Geohash"><span class="toc-number">1.3.</span> <span class="toc-text">Geohash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis-Geohash命令"><span class="toc-number">1.4.</span> <span class="toc-text">Redis Geohash命令</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        如何给经纬度加索引
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-05-26T03:33:32.000Z" itemprop="datePublished">2020-05-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="如何给经纬度加索引"><a href="#如何给经纬度加索引" class="headerlink" title="如何给经纬度加索引"></a>如何给经纬度加索引</h2><h3 id="回顾一下经纬度的定义"><a href="#回顾一下经纬度的定义" class="headerlink" title="回顾一下经纬度的定义"></a>回顾一下经纬度的定义</h3><p><img src="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-02.png" alt=""></p>
+<ul>
+<li><p>纬度</p>
+<blockquote>
+<p>某点与<a href="https://zh.wikipedia.org/wiki/地球" target="_blank" rel="noopener">地球</a>球心的连线和<a href="https://zh.wikipedia.org/wiki/地球" target="_blank" rel="noopener">地球</a><a href="https://zh.wikipedia.org/wiki/赤道" target="_blank" rel="noopener">赤道</a>面所成的线面角，其数值在0至90度之间</p>
+</blockquote>
+</li>
+<li><p>经度</p>
+<blockquote>
+<p>某点离一根被称为<a href="https://zh.wikipedia.org/wiki/本初子午線" target="_blank" rel="noopener">本初子午线</a>的南北方向走线以东或以西的度数</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="使用数据库存储经纬度"><a href="#使用数据库存储经纬度" class="headerlink" title="使用数据库存储经纬度"></a>使用数据库存储经纬度</h3><p><img src="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-01.png" alt=""></p>
+<ul>
+<li><p>给定经纬度查找指定范围内的点</p>
+<blockquote>
+<p>在点位相距不远的情况下可以忽略地球表面的弧度使用勾股定理计算距离</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">id</span> <span class="keyword">FROM</span> positions <span class="keyword">WHERE</span> x0 - r &lt; x &lt; x0 + r <span class="keyword">AND</span> y0 - r &lt; y &lt; y0 + r</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<h3 id="Geohash"><a href="#Geohash" class="headerlink" title="Geohash"></a>Geohash</h3><ul>
+<li><p>算法核心思想</p>
+<blockquote>
+<p>把整个地球看成二维平面，然后将平面不断地划分为一个个小小的方格，每一个坐标点都位于其中的唯一一个方格内，当方格划分的越来越小时坐标就会越精确</p>
+</blockquote>
+</li>
+</ul>
+<p><img src="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-03.png" alt=""></p>
+<ul>
+<li><p>Z阶曲线</p>
+<blockquote>
+<p>在数学分析和计算机科学中，Z阶曲线函数可以在保持数据点位置的同时，将多维数据映射到一维。多维点的z值只是通过交错其坐标值的二进制表示来计算的。一旦数据按此顺序排序，就可以使用任何一维数据结构，例如二进制搜索树、B树、跳过列表或（具有低有效位截断）哈希表。</p>
+</blockquote>
+</li>
+</ul>
+<p><img src="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-05.png" alt=""></p>
+<ul>
+<li>Geohash使用Z阶曲线对小方格进行编码</li>
+</ul>
+<p><img src="https://beancookie.github.io/images/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95-04.png" alt=""></p>
+<ul>
+<li><p>通常还会对Z阶曲线编码使用Base32转换成字符串</p>
+<blockquote>
+<p>例如：11010010110001000100将会被转换为wx4g0ec1</p>
+</blockquote>
+</li>
+<li><p>Redis中如何存储Geohash</p>
+<blockquote>
+<p>Redis中使用ZSET，score 是 <strong>GeoHash</strong> 的 <code>52</code> 位整数值，可以简单的理解为通过有序的score就可以查找到指定坐标附件的其他元素</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="Redis-Geohash命令"><a href="#Redis-Geohash命令" class="headerlink" title="Redis Geohash命令"></a>Redis Geohash命令</h3><ul>
+<li><p>geoadd</p>
+<blockquote>
+<p>增加元素</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEOADD Sicily 13.361389 38.115556 <span class="string">"Palermo"</span> 15.087269 37.502669 <span class="string">"Catania"</span></span></span><br><span class="line">(integer) 2</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEODIST Sicily Palermo Catania</span></span><br><span class="line">"166274.1516"</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEORADIUS Sicily 15 37 100 km</span></span><br><span class="line">1) "Catania"</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEORADIUS Sicily 15 37 200 km</span></span><br><span class="line">1) "Palermo"</span><br><span class="line">2) "Catania"</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>geodist</p>
+<blockquote>
+<p>计算两元素间的距离</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEOADD Sicily 13.361389 38.115556 <span class="string">"Palermo"</span> 15.087269 37.502669 <span class="string">"Catania"</span></span></span><br><span class="line">(integer) 2</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEODIST Sicily Palermo Catania</span></span><br><span class="line">"166274.1516"</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEODIST Sicily Palermo Catania km</span></span><br><span class="line">"166.2742"</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEODIST Sicily Palermo Catania mi</span></span><br><span class="line">"103.3182"</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEODIST Sicily Foo Bar</span></span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>geopos</p>
+<blockquote>
+<p> 指令可以获取集合中任意元素的经纬度坐标，可以一次获取多个</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEOADD Sicily 13.361389 38.115556 <span class="string">"Palermo"</span> 15.087269 37.502669 <span class="string">"Catania"</span></span></span><br><span class="line">(integer) 2</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEOPOS Sicily Palermo Catania NonExisting</span></span><br><span class="line">1) 1) "13.36138933897018433"</span><br><span class="line">   2) "38.11555639549629859"</span><br><span class="line">2) 1) "15.08726745843887329"</span><br><span class="line">   2) "37.50266842333162032"</span><br><span class="line">3) (nil)</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>geohash</p>
+<blockquote>
+<p>获取元素的 hash 值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEOADD Sicily 13.361389 38.115556 <span class="string">"Palermo"</span> 15.087269 37.502669 <span class="string">"Catania"</span></span></span><br><span class="line">(integer) 2</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEOHASH Sicily Palermo Catania</span></span><br><span class="line">1) "sqc8b49rny0"</span><br><span class="line">2) "sqdtr74hyu0"</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>georadius</p>
+<blockquote>
+<p>可以用来查询指定元素附近的其它元素，它的参数非常复杂<a href="https://redis.io/commands/georadius" target="_blank" rel="noopener">API</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEOADD Sicily 13.361389 38.115556 <span class="string">"Palermo"</span> 15.087269 37.502669 <span class="string">"Catania"</span></span></span><br><span class="line">(integer) 2</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEORADIUS Sicily 15 37 200 km WITHDIST</span></span><br><span class="line">1) 1) "Palermo"</span><br><span class="line">   2) "190.4424"</span><br><span class="line">2) 1) "Catania"</span><br><span class="line">   2) "56.4413"</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> GEORADIUS Sicily 15 37 200 km WITHCOORD</span></span><br><span class="line">1) 1) "Palermo"</span><br><span class="line">   2) 1) "13.36138933897018433"</span><br><span class="line">      2) "38.11555639549629859"</span><br><span class="line">2) 1) "Catania"</span><br><span class="line">   2) 1) "15.08726745843887329"</span><br><span class="line">      2) "37.50266842333162032"</span><br></pre></td></tr></table></figure>
+
+
+</blockquote>
+</li>
+<li><p>georadiusbymember</p>
+<blockquote>
+<p>与georadius命令类似只不过需要指定中心元素而不是中心坐标</p>
+</blockquote>
+</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#如何给经纬度加索引"><span class="toc-number">1.</span> <span class="toc-text">如何给经纬度加索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#回顾一下经纬度的定义"><span class="toc-number">1.1.</span> <span class="toc-text">回顾一下经纬度的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用数据库存储经纬度"><span class="toc-number">1.2.</span> <span class="toc-text">使用数据库存储经纬度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Geohash"><span class="toc-number">1.3.</span> <span class="toc-text">Geohash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis-Geohash命令"><span class="toc-number">1.4.</span> <span class="toc-text">Redis Geohash命令</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&text=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&is_video=false&description=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=如何给经纬度加索引&body=Check out this article: http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&title=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&name=如何给经纬度加索引&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/05/26/%E5%A6%82%E4%BD%95%E7%BB%99%E7%BB%8F%E7%BA%AC%E5%BA%A6%E5%8A%A0%E7%B4%A2%E5%BC%95/&t=如何给经纬度加索引" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

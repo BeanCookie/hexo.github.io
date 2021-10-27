@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="微服务导论什么是微服务 ​    当我们描述一个具体事物时其实很容易给出定义，比如我们可以外形的角度来描述什么是“猫”：头圆、颜面部短，前肢五指，后肢四趾，趾端具锐利而弯曲的爪，爪能伸缩。我们甚至可以拿出照片来解释这就是猫。与之相反我们很难描述一个抽象事物，比如我们很难解释什么是“爱情”，生活中我们可以用类比的方式来描述什么一个抽象事物，比如说“爱情”像什么什么一样。但是当描述一种全新的技术术语时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微服务导论">
+<meta property="og:url" content="http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="微服务导论什么是微服务 ​    当我们描述一个具体事物时其实很容易给出定义，比如我们可以外形的角度来描述什么是“猫”：头圆、颜面部短，前肢五指，后肢四趾，趾端具锐利而弯曲的爪，爪能伸缩。我们甚至可以拿出照片来解释这就是猫。与之相反我们很难描述一个抽象事物，比如我们很难解释什么是“爱情”，生活中我们可以用类比的方式来描述什么一个抽象事物，比如说“爱情”像什么什么一样。但是当描述一种全新的技术术语时">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://beancookie.github.io/images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA-01.png">
+<meta property="article:published_time" content="2020-04-20T10:53:59.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.084Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="微服务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beancookie.github.io/images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA-01.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>微服务导论</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/04/26/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%9F%B3%E4%B9%8BRPC-%E4%BA%8C/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/04/18/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%9F%B3%E4%B9%8BRPC-%E4%B8%80/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&text=微服务导论" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&is_video=false&description=微服务导论" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=微服务导论&body=Check out this article: http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&name=微服务导论&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&t=微服务导论" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#微服务导论"><span class="toc-number">1.</span> <span class="toc-text">微服务导论</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是微服务"><span class="toc-number">1.0.1.</span> <span class="toc-text">什么是微服务</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#微服务不是什么"><span class="toc-number">1.0.1.1.</span> <span class="toc-text">微服务不是什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#扩展立方体和服务"><span class="toc-number">1.0.1.2.</span> <span class="toc-text">扩展立方体和服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#微服务作为模块化的一种形式"><span class="toc-number">1.0.1.3.</span> <span class="toc-text">微服务作为模块化的一种形式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#每个服务都拥有自己的数据库"><span class="toc-number">1.0.1.4.</span> <span class="toc-text">每个服务都拥有自己的数据库</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#当谈论微服务时我们在谈论些什么"><span class="toc-number">1.0.2.</span> <span class="toc-text">当谈论微服务时我们在谈论些什么</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#微服务相关的技术问题有很多"><span class="toc-number">1.0.2.1.</span> <span class="toc-text">微服务相关的技术问题有很多</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在谈论问题之前如何达成一定的共识"><span class="toc-number">1.0.3.</span> <span class="toc-text">在谈论问题之前如何达成一定的共识</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        微服务导论
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-04-20T10:53:59.000Z" itemprop="datePublished">2020-04-20</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="微服务导论"><a href="#微服务导论" class="headerlink" title="微服务导论"></a>微服务导论</h1><h3 id="什么是微服务"><a href="#什么是微服务" class="headerlink" title="什么是微服务"></a>什么是微服务</h3><blockquote>
+<p>​    当我们描述一个具体事物时其实很容易给出定义，比如我们可以外形的角度来描述什么是“猫”：<em>头圆、颜面部短，前肢五指，后肢四趾，趾端具锐利而弯曲的爪，爪能伸缩</em>。我们甚至可以拿出照片来解释这就是猫。与之相反我们很难描述一个抽象事物，比如我们很难解释什么是“爱情”，生活中我们可以用类比的方式来描述什么一个抽象事物，比如说“爱情”像什么什么一样。但是当描述一种全新的技术术语时我们却依然难以通过类比的方式进行描述。</p>
+</blockquote>
+<h4 id="微服务不是什么"><a href="#微服务不是什么" class="headerlink" title="微服务不是什么"></a>微服务不是什么</h4><p>微服务并不是一个框架更不是某种特定编程语言实现的框架</p>
+<h4 id="扩展立方体和服务"><a href="#扩展立方体和服务" class="headerlink" title="扩展立方体和服务"></a>扩展立方体和服务</h4><p>​    于是我们换一种角度，在这里我们引入一种叫做<a href="https://akfpartners.com/growth-blog/scale-cube" target="_blank" rel="noopener"><strong>扩展立方体</strong></a>的三维可扩展模型。这个模型描述了扩展应用程序的三种维度。</p>
+<ul>
+<li>X轴扩展：在多个实例之间实现请求的负载均衡</li>
+<li>Z轴扩展：根据请求的属性路由请求</li>
+<li>Y轴扩展：根据功能把应用拆分为服务</li>
+</ul>
+<p><img src="https://beancookie.github.io/images/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA-01.png" alt="https://beancookie.github.io/images/微服务导论-01.png"></p>
+<p>所谓<strong>服务</strong>就是实现了一组相关的功能，并且能够在需要的时候借助X轴或Z轴进行扩展。</p>
+<p><strong>微服务就是把应用程序功能性分解为一组服务的架构风格</strong></p>
+<h4 id="微服务作为模块化的一种形式"><a href="#微服务作为模块化的一种形式" class="headerlink" title="微服务作为模块化的一种形式"></a>微服务作为模块化的一种形式</h4><p>​    在单体应用中模块化通常由编程语言(Package)或者编程语言配套(Maven，NPM，Composer)的包管理工具支持。但是随着时间的推移不断地进行版本迭代，单体应用会变得越来越庞大，越来越错综复杂。微服务使用服务而不是Package作为模块化的单元，服务的API定义了服务的边界。</p>
+<h4 id="每个服务都拥有自己的数据库"><a href="#每个服务都拥有自己的数据库" class="headerlink" title="每个服务都拥有自己的数据库"></a>每个服务都拥有自己的数据库</h4><p>​    微服务的一个关键特性是每个服务之间都是松耦合的，这种松耦合不仅仅是开发角度的，更是测试和运维角度的松耦合。</p>
+<h3 id="当谈论微服务时我们在谈论些什么"><a href="#当谈论微服务时我们在谈论些什么" class="headerlink" title="当谈论微服务时我们在谈论些什么"></a>当谈论微服务时我们在谈论些什么</h3><p>​    微服务早在2014年就被<a href="https://zh.wikipedia.org/wiki/%E9%A9%AC%E4%B8%81%C2%B7%E7%A6%8F%E5%8B%92" target="_blank" rel="noopener">Martin Fowler</a>提出，实际上软件行业从来都不缺新概念和新技术。很多人都图示寻找某种银弹来解决问题，但是很多概念都会和<a href="https://wiki.mbalib.com/wiki/%E5%85%89%E7%8E%AF%E6%9B%B2%E7%BA%BF" target="_blank" rel="noopener">光环曲线</a>一样消沉在历史长河之中。无数的新概念都会在过热期被大家广泛讨论和极致吹捧，2016年<a href="https://zh.wikipedia.org/wiki/AlphaGo" target="_blank" rel="noopener">AlphaGo</a>以4:1的战绩碾压李世石，2017又零封柯洁，媒体和民众甚至以为AI纪年已经到来。但是到了2020年随着泡沫消散，人们也也更清楚的认识到了AI的局限性，<a href="https://index.baidu.com/v2/main/index.html#/trend/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD?words=%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD" target="_blank" rel="noopener">人工智能</a>其实不是人工的智能，这里的人工实际上是个动词，通过足够的人工操作才能累计出某些领域所谓的智能。泡沫消散的同时也让某些真正有能力有城府的人投入更多的精力进行研究，运用AI为社会创造价值。<a href="https://index.baidu.com/v2/main/index.html#/trend/%E5%BE%AE%E6%9C%8D%E5%8A%A1?words=%E5%BE%AE%E6%9C%8D%E5%8A%A1" target="_blank" rel="noopener">微服务</a>也一样，2017~2018年有些人也以为微服务就是某种<a href="https://zh.wikipedia.org/wiki/%E6%B2%A1%E6%9C%89%E9%93%B6%E5%BC%B9" target="_blank" rel="noopener">银弹</a>，能够解决架构或者团队发展中遇到的瓶颈。</p>
+<ul>
+<li><p>这里提出一个比较激进的观点：技术本身是没有经济价值的。</p>
+<blockquote>
+<p>​    我们每天开发的代码服务器上运行的程序不会产生直接的经济价值。但是为什么BOSS每月会给我们发薪水呢，实际上是我们用的技术和工作所干的事挣钱。反过来说的采用某种技术以及使用某种工具，首先应该考虑的是能否提高版本迭代效率，提高应用的稳定性，其次才应该考虑后续的发展和扩展性。</p>
+</blockquote>
+<p>在创业初期，开发的应用需要快速实现功能需求，如果在系统应用还未完善的阶段采用复杂的架构往往会降低开发和运维效率。但是随着企业的发展，用户规模的增加，开发测试人员的扩充。这时就会发现代码中盘根错节的依赖关系，正在拖慢版本迭代速度，降低应用稳定性。</p>
+</li>
+<li><p>在2020年我们来谈微服务，实际上不是说该不该了解微服务，因为稍微复杂一些的系统都可以看到一些微服务的影子。我们更多的讨论应该放在何时引入微服务，以及如何根据自身的业务特性去思考微服务能否在某些方面提升效率和质量，以及引入之后带来的提升能否大于所产生的代价。</p>
+</li>
+<li><p>其次要考虑的是人为因素，因为在转型过程之中通常可以概况为三个阶段。</p>
+<ol>
+<li>走出舒适区会感到不适甚至想要退缩 </li>
+<li>新旧概念交替的而过程中为无所适从</li>
+<li>当完全掌握新的概念之后才能体会到新概念带来的种种好处</li>
+</ol>
+</li>
+</ul>
+<h4 id="微服务相关的技术问题有很多"><a href="#微服务相关的技术问题有很多" class="headerlink" title="微服务相关的技术问题有很多"></a>微服务相关的技术问题有很多</h4><blockquote>
+<p>微服务好像引入了很多错综复杂的新概念，不知不觉中让人望而生畏。</p>
+</blockquote>
+<ol>
+<li>RPC</li>
+<li>注册中心</li>
+<li>配置中心</li>
+<li>事件/消息总线</li>
+<li>服务降级和熔断</li>
+<li>微服务网关</li>
+<li>服务容器化</li>
+</ol>
+<p><strong>我们试图从中找出一些共性并尝试理出一条暗线</strong></p>
+<ol>
+<li>引入的技术是为了解决什么问题</li>
+<li>是不是真的有必要解决这个问题</li>
+<li>新技术是如何解决问题的</li>
+<li>解决问题的同时会不会引入其他问题</li>
+<li>如何规避或者降低引入问题的风险</li>
+</ol>
+<h3 id="在谈论问题之前如何达成一定的共识"><a href="#在谈论问题之前如何达成一定的共识" class="headerlink" title="在谈论问题之前如何达成一定的共识"></a>在谈论问题之前如何达成一定的共识</h3><blockquote>
+<p>​    生活中人与人之间的交流其实充满了很多的潜台词，比如说：有同事问我<em>百家湖新开的海底捞怎么样？</em>。这句话实际上包含了很多信息：大家都知道海底捞是火锅而不是烧烤，我们也大概是知道百家湖是个商圈和它的大概位置。生活中肯定也会存在很多因为无法理解彼此潜台词而造成讨论了半天，结果是鸡同鸭讲，浪费了很多时间也没有实质性的收获。</p>
+</blockquote>
+<p>​    当我们讨论一个新的技术概念的时候可能会造成更多的误解，所以在讨论之前我们试图能够达成某种共识，比如我们在讨论服务单体泥潭之前我们应该理解单体应用随着版本的迭代会产生一些问题，在讨论服务拆分之前我们要能够尝试理解服务拆分的必要性，以及为什么服务需要拥有独立的数据库。我们会一直采用上文对一系列技术暗线的总结，在讨论具体技术之前达成一定的共识或者能够从某种角度理解这些新的概念。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#微服务导论"><span class="toc-number">1.</span> <span class="toc-text">微服务导论</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是微服务"><span class="toc-number">1.0.1.</span> <span class="toc-text">什么是微服务</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#微服务不是什么"><span class="toc-number">1.0.1.1.</span> <span class="toc-text">微服务不是什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#扩展立方体和服务"><span class="toc-number">1.0.1.2.</span> <span class="toc-text">扩展立方体和服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#微服务作为模块化的一种形式"><span class="toc-number">1.0.1.3.</span> <span class="toc-text">微服务作为模块化的一种形式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#每个服务都拥有自己的数据库"><span class="toc-number">1.0.1.4.</span> <span class="toc-text">每个服务都拥有自己的数据库</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#当谈论微服务时我们在谈论些什么"><span class="toc-number">1.0.2.</span> <span class="toc-text">当谈论微服务时我们在谈论些什么</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#微服务相关的技术问题有很多"><span class="toc-number">1.0.2.1.</span> <span class="toc-text">微服务相关的技术问题有很多</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在谈论问题之前如何达成一定的共识"><span class="toc-number">1.0.3.</span> <span class="toc-text">在谈论问题之前如何达成一定的共识</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&text=微服务导论" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&is_video=false&description=微服务导论" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=微服务导论&body=Check out this article: http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&title=微服务导论" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&name=微服务导论&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/04/20/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AF%BC%E8%AE%BA/&t=微服务导论" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="变量Golang身为一种强类型语言，却拥有强大的类型推断系统。编程语言的究竟属于强类型还是弱类型并没有权威的定义，我们很多时候也只能根据现象和特性从直觉上进行判断：强类型的编程语言在编译期间会有着更严格的类型限制，也就是编译器会在编译期间发现变量赋值、返回值和函数调用时的类型错误，而弱类型的语言在出现类型错误时可能会在运行时进行隐式的类型转换，在类型转换时可能会造成运行错误。 Golang网页编辑">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang基础系列之变量、指针与基本数据结构">
+<meta property="og:url" content="http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="变量Golang身为一种强类型语言，却拥有强大的类型推断系统。编程语言的究竟属于强类型还是弱类型并没有权威的定义，我们很多时候也只能根据现象和特性从直觉上进行判断：强类型的编程语言在编译期间会有着更严格的类型限制，也就是编译器会在编译期间发现变量赋值、返回值和函数调用时的类型错误，而弱类型的语言在出现类型错误时可能会在运行时进行隐式的类型转换，在类型转换时可能会造成运行错误。 Golang网页编辑">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-09-09T05:54:00.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.079Z">
+<meta property="article:author" content="LuZhong">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Golang基础系列之变量、指针与基本数据结构</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/09/16/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/08/24/Docker%E4%B8%AD%E7%9A%84%E5%8D%95%E6%9C%BA%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&text=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&is_video=false&description=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Golang基础系列之变量、指针与基本数据结构&body=Check out this article: http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&name=Golang基础系列之变量、指针与基本数据结构&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&t=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#变量"><span class="toc-number">1.</span> <span class="toc-text">变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#指针"><span class="toc-number">2.</span> <span class="toc-text">指针</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Golang基础系列之变量、指针与基本数据结构
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-09-09T05:54:00.000Z" itemprop="datePublished">2020-09-09</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Golang/">Golang</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h4><p><strong>Golang</strong>身为一种强类型语言，却拥有强大的类型推断系统。编程语言的究竟属于强类型还是弱类型并没有权威的定义，我们很多时候也只能根据现象和特性从直觉上进行判断：强类型的编程语言在编译期间会有着更严格的类型限制，也就是编译器会在编译期间发现变量赋值、返回值和函数调用时的类型错误，而弱类型的语言在出现类型错误时可能会在运行时进行隐式的类型转换，在类型转换时可能会造成运行错误。</p>
+<p><a href="https://golang.org/" target="_blank" rel="noopener">Golang网页编辑器</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a = <span class="number">1</span></span><br><span class="line">	fmt.Printf(<span class="string">"a Type is %T\n"</span>, a)</span><br><span class="line">	<span class="comment">// a = 1.1</span></span><br><span class="line">	a = <span class="number">1.00</span></span><br><span class="line">	<span class="keyword">var</span> b = <span class="number">2.0</span></span><br><span class="line">	fmt.Printf(<span class="string">"b Type is %T\n"</span>, b)</span><br><span class="line">	c := <span class="string">"three"</span></span><br><span class="line">	fmt.Printf(<span class="string">"c Type is %T\n"</span>, c)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Golang</strong>是如何实现类型推断的呢？</p>
+<h4 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h4><p><strong>Golang</strong>作为一门新生语言，并没有沿用面向对象的主流思想，而是返璞归真的引入了指针。<strong>Golang</strong>中的指针并不是<strong>C</strong>中BUG般的存在，而是加以了诸多限制让它看起来更像Java中的引用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> MyStruct <span class="keyword">struct</span> &#123;</span><br><span class="line">	i <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(a *MyStruct)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"add:\t %v %p\n"</span>, a, &amp;a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a := <span class="number">1</span></span><br><span class="line">	pA := &amp;a</span><br><span class="line">	<span class="comment">// pA++</span></span><br><span class="line">	fmt.Printf(<span class="string">"%v %p\n"</span>, a, &amp;pA)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> b = &amp;MyStruct&#123;i: <span class="number">1</span>&#125;</span><br><span class="line">	fmt.Printf(<span class="string">"main:\t %v %p\n"</span>, b, &amp;b)</span><br><span class="line">	add(b)</span><br><span class="line">	fmt.Printf(<span class="string">"main:\t %v %p\n"</span>, b, &amp;b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#变量"><span class="toc-number">1.</span> <span class="toc-text">变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#指针"><span class="toc-number">2.</span> <span class="toc-text">指针</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&text=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&is_video=false&description=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Golang基础系列之变量、指针与基本数据结构&body=Check out this article: http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&title=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&name=Golang基础系列之变量、指针与基本数据结构&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/09/09/Golang%E5%9F%BA%E7%A1%80%E7%B3%BB%E5%88%97%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E6%8C%87%E9%92%88/&t=Golang基础系列之变量、指针与基本数据结构" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

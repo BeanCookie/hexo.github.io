@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="编写脚本时想要读取参数，最原始的方法就是通过sys模块获取参数列表，当读取一到两个简单参数时并没有什么不妥，但是当参数变得复杂多样时则会变得难以维护和扩展 12345678910111213141516import sysdef main():    &quot;&quot;&quot;     通过sys模块来识别参数demo, http:&#x2F;&#x2F;blog.csdn.net&#x2F;ouyang_peng&#x2F;    &quot;&quot;&quot;    prin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Python编写优雅的命令行程序">
+<meta property="og:url" content="http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="编写脚本时想要读取参数，最原始的方法就是通过sys模块获取参数列表，当读取一到两个简单参数时并没有什么不妥，但是当参数变得复杂多样时则会变得难以维护和扩展 12345678910111213141516import sysdef main():    &quot;&quot;&quot;     通过sys模块来识别参数demo, http:&#x2F;&#x2F;blog.csdn.net&#x2F;ouyang_peng&#x2F;    &quot;&quot;&quot;    prin">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-23T01:09:35.000Z">
+<meta property="article:modified_time" content="2021-10-27T03:39:29.082Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="Python Cli Application">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>使用Python编写优雅的命令行程序</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/07/24/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%BC%93%E5%AD%98/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/07/21/JWT%E5%AE%9E%E8%B7%B5%E4%B9%8BSpring%20Security/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&text=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&is_video=false&description=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=使用Python编写优雅的命令行程序&body=Check out this article: http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&name=使用Python编写优雅的命令行程序&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&t=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#argparse"><span class="toc-number">1.</span> <span class="toc-text">argparse</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#typer"><span class="toc-number">2.</span> <span class="toc-text">typer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#click"><span class="toc-number">3.</span> <span class="toc-text">click</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fire"><span class="toc-number">4.</span> <span class="toc-text">fire</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        使用Python编写优雅的命令行程序
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-07-23T01:09:35.000Z" itemprop="datePublished">2020-07-23</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Python-Cli-Application/" rel="tag">Python Cli Application</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>编写脚本时想要读取参数，最原始的方法就是通过sys模块获取参数列表，当读取一到两个简单参数时并没有什么不妥，但是当参数变得复杂多样时则会变得难以维护和扩展</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">     通过sys模块来识别参数demo, http://blog.csdn.net/ouyang_peng/</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    print(<span class="string">'参数个数为:'</span>, len(sys.argv), <span class="string">'个参数。'</span>)</span><br><span class="line">    print(<span class="string">'参数列表:'</span>, str(sys.argv))</span><br><span class="line">    print(<span class="string">'脚本名为：'</span>, sys.argv[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>, len(sys.argv)):</span><br><span class="line">        print(<span class="string">'参数 %s 为：%s'</span> % (i, sys.argv[i]))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4 id="argparse"><a href="#argparse" class="headerlink" title="argparse"></a>argparse</h4><p>好在功能强大的python内置了argparse库可以让我们更方便的读取参数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> bcrypt</span><br><span class="line"><span class="keyword">import</span> hmac</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">md5_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    md5_hash = hashlib.md5()</span><br><span class="line">    md5_hash.update(args.password.encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    <span class="keyword">return</span> md5_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sha256_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    sha256_hash = hashlib.sha256()</span><br><span class="line">    sha256_hash.update(args.password.encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    <span class="keyword">return</span> sha256_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hmac_md5_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> args.key:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'error: the following arguments are required: key'</span></span><br><span class="line">    hmac_md5_hash = hmac.new(args.key.encode(<span class="string">'utf-8'</span>), args.password.encode(<span class="string">'utf-8'</span>), digestmod=<span class="string">'MD5'</span>)</span><br><span class="line">    <span class="keyword">return</span> hmac_md5_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bcrypt_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> bcrypt.hashpw(args.password, bcrypt.gensalt(args.salt_len))</span><br><span class="line"></span><br><span class="line">switch = &#123;</span><br><span class="line">    <span class="string">'md5'</span>: md5_cypher,</span><br><span class="line">    <span class="string">'sha256'</span>: sha256_cypher,</span><br><span class="line">    <span class="string">'hmac-md5'</span>: hmac_md5_cypher,</span><br><span class="line">    <span class="string">'bcrypt'</span>: bcrypt_cypher,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cypher</span><span class="params">()</span>:</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">'密码加密,支持:md5 sha256 hmac-md5 bcrypt等方式'</span>)</span><br><span class="line">    group = parser.add_mutually_exclusive_group()</span><br><span class="line">    group.add_argument(<span class="string">'-t'</span>, <span class="string">'--hash-type'</span>, choices=[<span class="string">'md5'</span>, <span class="string">'sha256'</span>, <span class="string">'hmac-md5'</span>, <span class="string">'bcrypt'</span>])</span><br><span class="line">    parser.add_argument(<span class="string">'-k'</span>, <span class="string">'--key'</span>, type=str, dest=<span class="string">'hmac算法中的key'</span>)</span><br><span class="line">    parser.add_argument(<span class="string">'--salt-len'</span>, type=int, default=<span class="number">10</span>, dest=<span class="string">'迭代次数,默认为10次'</span>)</span><br><span class="line">    parser.add_argument(<span class="string">'password'</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        cyphertext = switch[args.type](args)</span><br><span class="line">        print(cyphertext)</span><br><span class="line">    <span class="keyword">except</span> KeyError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    cypher()</span><br></pre></td></tr></table></figure>
+
+<p>当然除了内置的参数解析模块也有需求优秀的第三方模块，相比argparse第三方库一般都支持注解方式，参数校验也更为丰富</p>
+<h4 id="typer"><a href="#typer" class="headerlink" title="typer"></a>typer</h4><blockquote>
+<p><a href="https://typer.tiangolo.com/" target="_blank" rel="noopener">https://typer.tiangolo.com/</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> typer</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> bcrypt</span><br><span class="line"><span class="keyword">import</span> hmac</span><br><span class="line"></span><br><span class="line">app = typer.Typer()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">md5_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    md5_hash = hashlib.md5()</span><br><span class="line">    md5_hash.update(args[<span class="string">'password'</span>].encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    <span class="keyword">return</span> md5_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sha256_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    sha256_hash = hashlib.sha256()</span><br><span class="line">    sha256_hash.update(args[<span class="string">'password'</span>].encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    <span class="keyword">return</span> sha256_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hmac_md5_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> args[<span class="string">'key'</span>]:</span><br><span class="line">        <span class="keyword">return</span> typer.echo(typer.style(<span class="string">'error: the following arguments are required: key'</span>, fg=typer.colors.MAGENTA))</span><br><span class="line">        <span class="keyword">raise</span> typer.Exit()</span><br><span class="line">    hmac_md5_hash = hmac.new(args[<span class="string">'key'</span>].encode(<span class="string">'utf-8'</span>), args[<span class="string">'password'</span>].encode(<span class="string">'utf-8'</span>), digestmod=<span class="string">'MD5'</span>)</span><br><span class="line">    <span class="keyword">return</span> hmac_md5_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bcrypt_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> bcrypt.hashpw(args[<span class="string">'password'</span>], bcrypt.gensalt(args[<span class="string">'salt_len'</span>]))</span><br><span class="line"></span><br><span class="line">switch = &#123;</span><br><span class="line">    <span class="string">'md5'</span>: md5_cypher,</span><br><span class="line">    <span class="string">'sha256'</span>: sha256_cypher,</span><br><span class="line">    <span class="string">'hmac-md5'</span>: hmac_md5_cypher,</span><br><span class="line">    <span class="string">'bcrypt'</span>: bcrypt_cypher,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">hash_types = [<span class="string">'md5'</span>, <span class="string">'sha256'</span>, <span class="string">'hmac-md5'</span>, <span class="string">'bcrypt'</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hash_type</span><span class="params">(value)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> value <span class="keyword">not</span> <span class="keyword">in</span> hash_types:</span><br><span class="line">        <span class="keyword">raise</span> typer.BadParameter(typer.style(<span class="string">'hash-type 应该在'</span> + str(hash_types) + <span class="string">'中选择'</span>, fg=typer.colors.MAGENTA))</span><br><span class="line">    <span class="keyword">return</span> value</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">salt_len</span><span class="params">(value: int)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> value &gt; <span class="number">15</span> <span class="keyword">or</span> value &lt; <span class="number">5</span>:</span><br><span class="line">        <span class="keyword">raise</span> typer.BadParameter(typer.style(<span class="string">'salt-len 应该在5~15之间'</span>, fg=typer.colors.MAGENTA))</span><br><span class="line">    <span class="keyword">return</span> value</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.command()</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cypher</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    password: str = typer.Option<span class="params">(</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="params">        ..., prompt=True, hide_input=True</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="params">    )</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    hash_type: str = typer.Option<span class="params">(..., callback=hash_type)</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">    key: str = typer.Option<span class="params">(<span class="string">'abc@123'</span>)</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">    salt_len: int = typer.Option<span class="params">(default=<span class="number">10</span>, callback=salt_len)</span></span></span></span><br><span class="line"><span class="function"><span class="params">)</span>:</span></span><br><span class="line">    args = &#123;</span><br><span class="line">        <span class="string">'hash_type'</span>: hash_type,</span><br><span class="line">        <span class="string">'key'</span>: key,</span><br><span class="line">        <span class="string">'salt_len'</span>: salt_len,</span><br><span class="line">        <span class="string">'password'</span>: password,</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        cyphertext = switch[hash_type](args)</span><br><span class="line">        typer.echo(typer.style(cyphertext, fg=typer.colors.WHITE, bold=<span class="literal">True</span>))</span><br><span class="line">    <span class="keyword">except</span> KeyError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app()</span><br></pre></td></tr></table></figure>
+
+<h4 id="click"><a href="#click" class="headerlink" title="click"></a>click</h4><blockquote>
+<p><a href="https://palletsprojects.com/p/click/" target="_blank" rel="noopener">https://palletsprojects.com/p/click/</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> click</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> bcrypt</span><br><span class="line"><span class="keyword">import</span> hmac</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">md5_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    md5_hash = hashlib.md5()</span><br><span class="line">    md5_hash.update(args[<span class="string">'password'</span>].encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    <span class="keyword">return</span> md5_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sha256_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    sha256_hash = hashlib.sha256()</span><br><span class="line">    sha256_hash.update(args[<span class="string">'password'</span>].encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    <span class="keyword">return</span> sha256_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hmac_md5_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> args[<span class="string">'key'</span>]:</span><br><span class="line">        <span class="keyword">return</span> click.secho(<span class="string">'error: the following arguments are required: key'</span>, bg=<span class="string">'black'</span>, fg=<span class="string">'red'</span>)</span><br><span class="line">    hmac_md5_hash = hmac.new(args[<span class="string">'key'</span>].encode(<span class="string">'utf-8'</span>), args[<span class="string">'password'</span>].encode(<span class="string">'utf-8'</span>), digestmod=<span class="string">'MD5'</span>)</span><br><span class="line">    <span class="keyword">return</span> hmac_md5_hash.hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bcrypt_cypher</span><span class="params">(args)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> bcrypt.hashpw(args[<span class="string">'password'</span>], bcrypt.gensalt(args[<span class="string">'salt_len'</span>]))</span><br><span class="line"></span><br><span class="line">switch = &#123;</span><br><span class="line">    <span class="string">'md5'</span>: md5_cypher,</span><br><span class="line">    <span class="string">'sha256'</span>: sha256_cypher,</span><br><span class="line">    <span class="string">'hmac-md5'</span>: hmac_md5_cypher,</span><br><span class="line">    <span class="string">'bcrypt'</span>: bcrypt_cypher,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@click.command()</span></span><br><span class="line"><span class="meta">@click.option(</span></span><br><span class="line">    <span class="string">'-t'</span>, <span class="string">'--hash-type'</span>,</span><br><span class="line">    type=click.Choice([<span class="string">'md5'</span>, <span class="string">'sha256'</span>, <span class="string">'hmac-md5'</span>, <span class="string">'bcrypt'</span>], </span><br><span class="line">    case_sensitive=<span class="literal">False</span>)</span><br><span class="line">)</span><br><span class="line"><span class="meta">@click.option(</span></span><br><span class="line">    <span class="string">'-k'</span>, <span class="string">'--key'</span>,</span><br><span class="line">    type=str,</span><br><span class="line">    required=<span class="literal">False</span></span><br><span class="line">)</span><br><span class="line"><span class="meta">@click.option(</span></span><br><span class="line">    <span class="string">'--salt-len'</span>,</span><br><span class="line">    type=click.IntRange(<span class="number">5</span>, <span class="number">15</span>),</span><br><span class="line">    default=<span class="number">10</span>,</span><br><span class="line">    required=<span class="literal">False</span></span><br><span class="line">)</span><br><span class="line"><span class="meta">@click.option(</span></span><br><span class="line">    <span class="string">'--password'</span>, </span><br><span class="line">    prompt=<span class="literal">True</span>, </span><br><span class="line">    hide_input=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cypher</span><span class="params">(hash_type, key, salt_len, password)</span>:</span></span><br><span class="line">    args = &#123;</span><br><span class="line">        <span class="string">'hash_type'</span>: hash_type,</span><br><span class="line">        <span class="string">'key'</span>: key,</span><br><span class="line">        <span class="string">'salt_len'</span>: salt_len,</span><br><span class="line">        <span class="string">'password'</span>: password,</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        cyphertext = switch[hash_type](args)</span><br><span class="line">            </span><br><span class="line">        click.echo(cyphertext)</span><br><span class="line">    <span class="keyword">except</span> KeyError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    cypher()</span><br></pre></td></tr></table></figure>
+
+<h4 id="fire"><a href="#fire" class="headerlink" title="fire"></a>fire</h4><blockquote>
+<p><a href="https://github.com/google/python-fire" target="_blank" rel="noopener">https://github.com/google/python-fire</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> fire</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> bcrypt</span><br><span class="line"><span class="keyword">import</span> hmac</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Cypher</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""密码加密,支持:md5 sha256 hmac-md5 bcrypt等方式"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">md5</span><span class="params">(self, password)</span>:</span></span><br><span class="line">        md5_hash = hashlib.md5()</span><br><span class="line">        md5_hash.update(password.encode(<span class="string">'utf-8'</span>))</span><br><span class="line">        <span class="keyword">return</span> md5_hash.hexdigest()</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">sha256</span><span class="params">(self, password)</span>:</span></span><br><span class="line">        sha256_hash = hashlib.sha256()</span><br><span class="line">        sha256_hash.update(password.encode(<span class="string">'utf-8'</span>))</span><br><span class="line">        <span class="keyword">return</span> sha256_hash.hexdigest()</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">hmac_md5</span><span class="params">(self, password, key)</span>:</span></span><br><span class="line">        hmac_md5_hash = hmac.new(key.encode(<span class="string">'utf-8'</span>), password.encode(<span class="string">'utf-8'</span>), digestmod=<span class="string">'MD5'</span>)</span><br><span class="line">        <span class="keyword">return</span> hmac_md5_hash.hexdigest()</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">bcrypt_cypher</span><span class="params">(self, password, salt_len)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> bcrypt.hashpw(password, bcrypt.gensalt(salt_len))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    fire.Fire(Cypher)</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#argparse"><span class="toc-number">1.</span> <span class="toc-text">argparse</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#typer"><span class="toc-number">2.</span> <span class="toc-text">typer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#click"><span class="toc-number">3.</span> <span class="toc-text">click</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fire"><span class="toc-number">4.</span> <span class="toc-text">fire</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&text=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&is_video=false&description=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=使用Python编写优雅的命令行程序&body=Check out this article: http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&title=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&name=使用Python编写优雅的命令行程序&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/07/23/%E4%BD%BF%E7%94%A8Python%E7%BC%96%E5%86%99%E4%BC%98%E9%9B%85%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%A8%8B%E5%BA%8F/&t=使用Python编写优雅的命令行程序" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>
