@@ -6,13 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta property="og:type" content="article">
+    <meta name="description" content="Flink基础教程基础概念解析开发环境搭建DataStream API编程状态管理与容错机制Table API编程Flink SQL编程Flink进阶Runtime核心机制深度解读Flink中的时间属性序列化Flink作业执行机制解析Metrics详解Flink实践技巧Flink CDC实践">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Flink目录">
 <meta property="og:url" content="http://yoursite.com/2021/11/02/Flink%E7%9B%AE%E5%BD%95/index.html">
 <meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="Flink基础教程基础概念解析开发环境搭建DataStream API编程状态管理与容错机制Table API编程Flink SQL编程Flink进阶Runtime核心机制深度解读Flink中的时间属性序列化Flink作业执行机制解析Metrics详解Flink实践技巧Flink CDC实践">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-11-02T07:36:44.000Z">
-<meta property="article:modified_time" content="2021-11-02T07:36:44.073Z">
+<meta property="article:modified_time" content="2021-11-03T09:33:35.271Z">
 <meta property="article:author" content="LuZhong">
 <meta name="twitter:card" content="summary">
     
@@ -101,7 +103,7 @@
 
     </div>
     <div id="toc">
-      
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink基础教程"><span class="toc-number">1.</span> <span class="toc-text">Flink基础教程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#基础概念解析"><span class="toc-number">1.1.</span> <span class="toc-text">基础概念解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#开发环境搭建"><span class="toc-number">1.2.</span> <span class="toc-text">开发环境搭建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DataStream-API编程"><span class="toc-number">1.3.</span> <span class="toc-text">DataStream API编程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#状态管理与容错机制"><span class="toc-number">1.4.</span> <span class="toc-text">状态管理与容错机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Table-API编程"><span class="toc-number">1.5.</span> <span class="toc-text">Table API编程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Flink-SQL编程"><span class="toc-number">1.6.</span> <span class="toc-text">Flink SQL编程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink进阶"><span class="toc-number">2.</span> <span class="toc-text">Flink进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Runtime核心机制"><span class="toc-number">2.1.</span> <span class="toc-text">Runtime核心机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#深度解读Flink中的时间属性"><span class="toc-number">2.2.</span> <span class="toc-text">深度解读Flink中的时间属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#序列化"><span class="toc-number">2.3.</span> <span class="toc-text">序列化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Flink作业执行机制解析"><span class="toc-number">2.4.</span> <span class="toc-text">Flink作业执行机制解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Metrics详解"><span class="toc-number">2.5.</span> <span class="toc-text">Metrics详解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink实践技巧"><span class="toc-number">3.</span> <span class="toc-text">Flink实践技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Flink-CDC实践"><span class="toc-number">3.1.</span> <span class="toc-text">Flink CDC实践</span></a></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -140,7 +142,7 @@
   
 
   <div class="content" itemprop="articleBody">
-    
+    <h3 id="Flink基础教程"><a href="#Flink基础教程" class="headerlink" title="Flink基础教程"></a>Flink基础教程</h3><h4 id="基础概念解析"><a href="#基础概念解析" class="headerlink" title="基础概念解析"></a>基础概念解析</h4><h4 id="开发环境搭建"><a href="#开发环境搭建" class="headerlink" title="开发环境搭建"></a>开发环境搭建</h4><h4 id="DataStream-API编程"><a href="#DataStream-API编程" class="headerlink" title="DataStream API编程"></a>DataStream API编程</h4><h4 id="状态管理与容错机制"><a href="#状态管理与容错机制" class="headerlink" title="状态管理与容错机制"></a>状态管理与容错机制</h4><h4 id="Table-API编程"><a href="#Table-API编程" class="headerlink" title="Table API编程"></a>Table API编程</h4><h4 id="Flink-SQL编程"><a href="#Flink-SQL编程" class="headerlink" title="Flink SQL编程"></a>Flink SQL编程</h4><h3 id="Flink进阶"><a href="#Flink进阶" class="headerlink" title="Flink进阶"></a>Flink进阶</h3><h4 id="Runtime核心机制"><a href="#Runtime核心机制" class="headerlink" title="Runtime核心机制"></a>Runtime核心机制</h4><h4 id="深度解读Flink中的时间属性"><a href="#深度解读Flink中的时间属性" class="headerlink" title="深度解读Flink中的时间属性"></a>深度解读Flink中的时间属性</h4><h4 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h4><h4 id="Flink作业执行机制解析"><a href="#Flink作业执行机制解析" class="headerlink" title="Flink作业执行机制解析"></a>Flink作业执行机制解析</h4><h4 id="Metrics详解"><a href="#Metrics详解" class="headerlink" title="Metrics详解"></a>Metrics详解</h4><h3 id="Flink实践技巧"><a href="#Flink实践技巧" class="headerlink" title="Flink实践技巧"></a>Flink实践技巧</h3><h4 id="Flink-CDC实践"><a href="#Flink-CDC实践" class="headerlink" title="Flink CDC实践"></a>Flink CDC实践</h4>
   </div>
 </article>
 
@@ -165,7 +167,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink基础教程"><span class="toc-number">1.</span> <span class="toc-text">Flink基础教程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#基础概念解析"><span class="toc-number">1.1.</span> <span class="toc-text">基础概念解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#开发环境搭建"><span class="toc-number">1.2.</span> <span class="toc-text">开发环境搭建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DataStream-API编程"><span class="toc-number">1.3.</span> <span class="toc-text">DataStream API编程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#状态管理与容错机制"><span class="toc-number">1.4.</span> <span class="toc-text">状态管理与容错机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Table-API编程"><span class="toc-number">1.5.</span> <span class="toc-text">Table API编程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Flink-SQL编程"><span class="toc-number">1.6.</span> <span class="toc-text">Flink SQL编程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink进阶"><span class="toc-number">2.</span> <span class="toc-text">Flink进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Runtime核心机制"><span class="toc-number">2.1.</span> <span class="toc-text">Runtime核心机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#深度解读Flink中的时间属性"><span class="toc-number">2.2.</span> <span class="toc-text">深度解读Flink中的时间属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#序列化"><span class="toc-number">2.3.</span> <span class="toc-text">序列化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Flink作业执行机制解析"><span class="toc-number">2.4.</span> <span class="toc-text">Flink作业执行机制解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Metrics详解"><span class="toc-number">2.5.</span> <span class="toc-text">Metrics详解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink实践技巧"><span class="toc-number">3.</span> <span class="toc-text">Flink实践技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Flink-CDC实践"><span class="toc-number">3.1.</span> <span class="toc-text">Flink CDC实践</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
