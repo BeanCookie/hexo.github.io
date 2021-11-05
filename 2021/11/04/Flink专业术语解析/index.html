@@ -14,8 +14,9 @@
 <meta property="og:description" content="接下来我们来介绍一下定义中一些关键术语 无界和有界数据任何类型的数据都可以形成一种事件流。信用卡交易、传感器测量、机器日志、网站或移动应用程序上的用户交互记录，所有这些数据都形成一种流。  数据可以被作为 无界 或者 有界 流来处理。  无界流 有定义流的开始，但没有定义流的结束。它们会无休止地产生数据。无界流的数据必须持续处理，即数据被摄取后需要立刻处理。我们不能等到所有数据都到达再处理，因为输">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-11-04T13:53:25.000Z">
-<meta property="article:modified_time" content="2021-11-04T13:53:42.935Z">
+<meta property="article:modified_time" content="2021-11-05T03:10:10.901Z">
 <meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="Flink">
 <meta name="twitter:card" content="summary">
     
     
@@ -103,7 +104,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#接下来我们来介绍一下定义中一些关键术语"><span class="toc-number">1.</span> <span class="toc-text">接下来我们来介绍一下定义中一些关键术语</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#接下来我们来介绍一下定义中一些关键术语"><span class="toc-number">1.</span> <span class="toc-text">接下来我们来介绍一下定义中一些关键术语</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -134,35 +135,45 @@
 
 
       
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Flink/">Flink</a>
+    </div>
+
 
       
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Flink/" rel="tag">Flink</a>
+    </div>
+
 
     </div>
   </header>
   
 
   <div class="content" itemprop="articleBody">
-    <h4 id="接下来我们来介绍一下定义中一些关键术语"><a href="#接下来我们来介绍一下定义中一些关键术语" class="headerlink" title="接下来我们来介绍一下定义中一些关键术语"></a>接下来我们来介绍一下定义中一些关键术语</h4><ul>
+    <h3 id="接下来我们来介绍一下定义中一些关键术语"><a href="#接下来我们来介绍一下定义中一些关键术语" class="headerlink" title="接下来我们来介绍一下定义中一些关键术语"></a>接下来我们来介绍一下定义中一些关键术语</h3><ol>
 <li>无界和有界数据<br>任何类型的数据都可以形成一种事件流。信用卡交易、传感器测量、机器日志、网站或移动应用程序上的用户交互记录，所有这些数据都形成一种流。</li>
-</ul>
+</ol>
 <p>数据可以被作为 无界 或者 有界 流来处理。</p>
-<ol>
+<ul>
 <li><p>无界流 有定义流的开始，但没有定义流的结束。它们会无休止地产生数据。无界流的数据必须持续处理，即数据被摄取后需要立刻处理。我们不能等到所有数据都到达再处理，因为输入是无限的，在任何时候输入都不会完成。处理无界数据通常要求以特定顺序摄取事件，例如事件发生的顺序，以便能够推断结果的完整性。</p>
 </li>
 <li><p>有界流 有定义流的开始，也有定义流的结束。有界流可以在摄取所有数据后再进行计算。有界流所有数据可以被排序，所以并不需要有序摄取。有界流处理通常被称为批处理。</p>
 </li>
+</ul>
+<ol start="2">
+<li>有状态的计算<br>虽然数据流中大多数操作只作用于一个单独的事件，但是有些操作会记住多个事件的信息，这些操作被称为有状态的操作。</li>
 </ol>
 <ul>
-<li>有状态的计算<br>虽然数据流中大多数操作只作用于一个单独的事件，但是有些操作会记住多个事件的信息，这些操作被称为有状态的操作。</li>
-</ul>
-<ol>
 <li><p>Flink可以利用检查点和保存点机制保障内部状态的准确性。</p>
 </li>
 <li><p>状态数据不仅可以在集群内部访问与修改，也可以在运行时从外部访问状态数据。</p>
 </li>
 <li><p>Flink还可以根据不同场景选用不同的状态后端。</p>
 </li>
-</ol>
+</ul>
 
   </div>
 </article>
@@ -188,7 +199,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#接下来我们来介绍一下定义中一些关键术语"><span class="toc-number">1.</span> <span class="toc-text">接下来我们来介绍一下定义中一些关键术语</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#接下来我们来介绍一下定义中一些关键术语"><span class="toc-number">1.</span> <span class="toc-text">接下来我们来介绍一下定义中一些关键术语</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
