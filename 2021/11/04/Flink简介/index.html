@@ -6,18 +6,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="Flink是什么根据Flink官网的定义，Flink 是一个框架和分布式处理引擎，用于在无边界和有边界数据流上进行有状态的计算。Flink 能在所有常见集群环境中运行，并能以内存速度和任意规模进行计算。 Flink的起源Apache Flink是Apache开源软件基金会的一个顶级项目，和许多 Apache顶级项目一样，如Spark起源于UC伯克利的实验室，Flink也是起源于非常有名的大学的实验">
+    <meta name="description" content="Flink是什么根据Flink官网的定义，Flink是一个框架和分布式处理引擎，用于在无边界和有边界数据流上进行有状态的计算。Flink能在所有常见集群环境中运行，并能以内存速度和任意规模进行计算。 Flink的起源Apache Flink是Apache开源软件基金会的一个顶级项目，和许多Apache顶级项目一样，如Spark起源于UC伯克利的实验室，Flink也是起源于非常有名的大学的实验室——">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Flink基础概念解析">
-<meta property="og:url" content="http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:title" content="Flink简介">
+<meta property="og:url" content="http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/index.html">
 <meta property="og:site_name" content="Lzzz的博客">
-<meta property="og:description" content="Flink是什么根据Flink官网的定义，Flink 是一个框架和分布式处理引擎，用于在无边界和有边界数据流上进行有状态的计算。Flink 能在所有常见集群环境中运行，并能以内存速度和任意规模进行计算。 Flink的起源Apache Flink是Apache开源软件基金会的一个顶级项目，和许多 Apache顶级项目一样，如Spark起源于UC伯克利的实验室，Flink也是起源于非常有名的大学的实验">
+<meta property="og:description" content="Flink是什么根据Flink官网的定义，Flink是一个框架和分布式处理引擎，用于在无边界和有边界数据流上进行有状态的计算。Flink能在所有常见集群环境中运行，并能以内存速度和任意规模进行计算。 Flink的起源Apache Flink是Apache开源软件基金会的一个顶级项目，和许多Apache顶级项目一样，如Spark起源于UC伯克利的实验室，Flink也是起源于非常有名的大学的实验室——">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-001.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-002.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-003.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-004.png">
 <meta property="article:published_time" content="2021-11-04T13:32:02.000Z">
-<meta property="article:modified_time" content="2021-11-05T03:09:54.677Z">
+<meta property="article:modified_time" content="2021-11-06T07:10:06.382Z">
 <meta property="article:author" content="LuZhong">
 <meta property="article:tag" content="Flink">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-001.png">
     
     
       
@@ -37,7 +42,7 @@
       
     
     <!-- title -->
-    <title>Flink基础概念解析</title>
+    <title>Flink简介</title>
     <!-- styles -->
     
 <link rel="stylesheet" href="/css/style.css">
@@ -91,17 +96,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&text=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&is_video=false&description=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Flink基础概念解析&body=Check out this article: http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&name=Flink基础概念解析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&t=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&text=Flink简介" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&is_video=false&description=Flink简介" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Flink简介&body=Check out this article: http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&name=Flink简介&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&t=Flink简介" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -118,7 +123,7 @@
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
-        Flink基础概念解析
+        Flink简介
     </h1>
 
 
@@ -155,12 +160,18 @@
   
 
   <div class="content" itemprop="articleBody">
-    <h3 id="Flink是什么"><a href="#Flink是什么" class="headerlink" title="Flink是什么"></a>Flink是什么</h3><p>根据Flink官网的定义，Flink 是一个框架和分布式处理引擎，用于在<strong>无边界</strong>和<strong>有边界</strong>数据流上进行<strong>有状态</strong>的计算。Flink 能在所有常见集群环境中运行，并能以内存速度和任意规模进行计算。</p>
-<h3 id="Flink的起源"><a href="#Flink的起源" class="headerlink" title="Flink的起源"></a>Flink的起源</h3><p>Apache Flink是Apache开源软件基金会的一个顶级项目，和许多 Apache顶级项目一样，如Spark起源于UC伯克利的实验室，Flink也是起源于非常有名的<br>大学的实验室——柏林工业大学实验室。<br>项目最初的名称为 Stratosphere，目标是要让大数据的处理看起来更加地简洁。<br>项目初始的代码贡献者中，有很多至今仍活跃在 Apache 的项目管理委员会里，在社区里持续做出贡献。<br>Stratosphere 项目于2010年发起，2014年5月，Stratosphere项目被贡献到Apache软件基金会，作为孵化器项目进行孵化并更名为Flink。<br>发展至今，Flink 已成为 Apache 社区最活跃的大数据项目。它的用户与开发者邮件列表活跃度在 2020 年的 Apache 年度报告中排名第一。</p>
+    <h3 id="Flink是什么"><a href="#Flink是什么" class="headerlink" title="Flink是什么"></a>Flink是什么</h3><p>根据Flink官网的定义，Flink是一个框架和分布式处理引擎，用于在<strong>无边界</strong>和<strong>有边界</strong>数据流上进行<strong>有状态</strong>的计算。Flink能在所有常见集群环境中运行，并能以内存速度和任意规模进行计算。<br><img src="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-001.png" alt="https://beancookie.github.io/images/Flink简介-001.png"></p>
+<h3 id="Flink的起源"><a href="#Flink的起源" class="headerlink" title="Flink的起源"></a>Flink的起源</h3><p>Apache Flink是Apache开源软件基金会的一个顶级项目，和许多Apache顶级项目一样，如Spark起源于UC伯克利的实验室，Flink也是起源于非常有名的<br>大学的实验室——柏林工业大学实验室。<br>项目最初的名称为Stratosphere，目标是要让大数据的处理看起来更加地简洁。<br>Stratosphere项目于2010年发起，2014年5月Stratosphere项目被贡献到Apache软件基金会，作为孵化器项目进行孵化并更名为Flink。发展至今，Flink已成为Apache社区最活跃的大数据项目。它的用户与开发者邮件列表活跃度在2020年的Apache年度报告中排名第一。</p>
+<ol>
+<li><p>社区邮件列表活跃度：TOP 1<br><img src="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-002.png" alt="https://beancookie.github.io/images/Flink简介-002.png"></p>
+</li>
+<li><p>Commits 提交：TOP 2<br><img src="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-003.png" alt="https://beancookie.github.io/images/Flink简介-003.png"></p>
+</li>
+</ol>
 <h3 id="为什么要学习Apache-Flink"><a href="#为什么要学习Apache-Flink" class="headerlink" title="为什么要学习Apache Flink"></a>为什么要学习Apache Flink</h3><ol>
 <li><p>大数据处理的实时化趋势<br>随着网络迅速发展，大数据的处理呈现出非常明显的实时化趋势。<br>如上图所示，我们列举了一些现实生活中常见的场景。如春晚的直播有一个实时<br>大屏，双11购物节也有实时成交额的统计和媒体汇报。城市大脑可以实时监测交通，银行可以实时进行风控监测。当我们打开淘宝、天猫等应用软件时，它都会根据用户不同的习惯进行实时个性化推荐。</p>
 </li>
-<li><p>Flink已成为国内外实时计算事实标准<br>目前国内外许多公司都在使用 Flink，国际公司有 Netflix、eBay，LinkedIn 等，国内有阿里巴巴、腾讯、美团、小米、快手等大型互联网公司。</p>
+<li><p>Flink已成为国内外实时计算事实标准<br>目前国内外许多公司都在使用 Flink，国际公司有 Netflix、eBay，LinkedIn 等，国内有阿里巴巴、腾讯、美团、小米、快手等大型互联网公司。<br><img src="https://beancookie.github.io/images/Flink%E7%AE%80%E4%BB%8B-004.png" alt="https://beancookie.github.io/images/Flink简介-004.png"></p>
 </li>
 <li><p>随着流计算引擎的演进，Flink已成为新一代的计算引擎</p>
 </li>
@@ -168,17 +179,17 @@
 <ul>
 <li><p>流计算引擎进行了很多代的演进，第一代流计算引擎 Apache Storm 是一个纯流的设计，延迟非常的低，但是它的问题也比较明显，即没有办法避免消息的重复处理，从而导致数据正确性有一定的问题。</p>
 </li>
-<li><p>Spark Streaming 是第二代流计算引擎，解决了流计算语义正确性的问题，但是它的设计理念是以批为核心，最大的问题是延迟比较高，只能做到 10 秒级别的延迟，端到端无法实现秒以内的延迟。</p>
+<li><p>Spark Streaming是第二代流计算引擎，解决了流计算语义正确性的问题，但是它的设计理念是以批为核心，最大的问题是延迟比较高，只能做到10秒级别的延迟，端到端无法实现秒以内的延迟。</p>
 </li>
 <li><p>Flink 是第三代流计算引擎，也是最新一代的流计算引擎。它既可以保证低延迟，同时又可以保证消息的一致性语义，对于内置状态的管理，也极大降低了应用程序的复杂度。</p>
 </li>
 </ul>
 <h3 id="Apache-Flink-典型应用场景"><a href="#Apache-Flink-典型应用场景" class="headerlink" title="Apache Flink 典型应用场景"></a>Apache Flink 典型应用场景</h3><ul>
-<li><p>事件驱动型应用</p>
+<li><p>事件驱动型应用<br>事件驱动表示一个事件会触发另一个或者是很多个后续的事件，然后这一系列事<br>件会形成一些信息，基于这些信息需要做一定的处理。<br>在社交场景下，以微博为例当我们点击了一个关注之后，被关注人的粉丝数就<br>会发生变化。之后如果被关注的人发了一条微博，关注他的粉丝也会收到消息通知，这是一个典型的事件驱动。<br>总结一下，事件驱动型应用是一类具有状态的应用，会根据事件流中的事件触发<br>计算、更新状态或进行外部系统操作。事件驱动型应用常见于实时计算业务中，比<br>如：实时推荐，金融反欺诈，实时规则预警等。</p>
 </li>
-<li><p>数据分析型应用</p>
+<li><p>数据分析型应用<br>第二类典型应用场景是数据分析型应用，如双11成交额实时汇总，包括<br>PV、UV 的统计。<br>还包括一些营销大屏，销量的升降，营销策略的结果进行环比、同比的比较，这<br>些背后都涉及到大量信息实时的分析和聚合，这些都是Flink非常典型的使用场景。<br>可以看到，这些应用的场景体量很大且对于实时性要求非常高，这也是<br>Apache Flink非常擅长的场景。</p>
 </li>
-<li><p>数据管道型应用 (ETL)</p>
+<li><p>数据管道型应用 (ETL)<br>ETL（Extract-Transform-Load）是从数据源抽取/转换/加载/数据至目的端的过程。<br>传统的ETL使用离线处理，经常做的是小时级别或者天级别的ETL。但是随着大数据处理呈现实时化趋势，我们也会有实时数仓的需求，要求在分钟级或者秒级就能够对数据进行更新，从而进行及时的查询，能够看到实时的指标，然后做更实时的判断和分析。</p>
 </li>
 </ul>
 
@@ -211,17 +222,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&text=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&is_video=false&description=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Flink基础概念解析&body=Check out this article: http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&title=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&name=Flink基础概念解析&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/04/Flink%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/&t=Flink基础概念解析" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&text=Flink简介" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&is_video=false&description=Flink简介" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Flink简介&body=Check out this article: http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&title=Flink简介" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&name=Flink简介&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/04/Flink%E7%AE%80%E4%BB%8B/&t=Flink简介" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
