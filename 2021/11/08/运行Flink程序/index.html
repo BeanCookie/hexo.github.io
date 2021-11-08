@@ -16,8 +16,10 @@
 <meta property="og:image" content="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-01.png">
 <meta property="og:image" content="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-02.png">
 <meta property="og:image" content="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-03.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-04.png">
+<meta property="og:image" content="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-05.png">
 <meta property="article:published_time" content="2021-11-08T03:15:34.000Z">
-<meta property="article:modified_time" content="2021-11-08T03:47:26.815Z">
+<meta property="article:modified_time" content="2021-11-08T07:14:03.671Z">
 <meta property="article:author" content="LuZhong">
 <meta property="article:tag" content="Flink">
 <meta name="twitter:card" content="summary">
@@ -108,7 +110,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令行运行jar"><span class="toc-number">2.</span> <span class="toc-text">命令行运行jar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UI界面上传jar"><span class="toc-number">3.</span> <span class="toc-text">UI界面上传jar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发工具调试开发"><span class="toc-number">4.</span> <span class="toc-text">开发工具调试开发</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令行运行jar"><span class="toc-number">2.</span> <span class="toc-text">命令行运行jar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UI界面上传jar"><span class="toc-number">3.</span> <span class="toc-text">UI界面上传jar</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#通过UI界面上传jar包"><span class="toc-number">3.1.</span> <span class="toc-text">通过UI界面上传jar包</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发工具调试开发"><span class="toc-number">4.</span> <span class="toc-text">开发工具调试开发</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -169,7 +171,15 @@
 <p><img src="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-02.png" alt="https://beancookie.github.io/images/运行Flink程序-02.png"></p>
 <p>Task Slot 是一个 TaskManager 中的最小资源分配单位，一个 TaskManager 中有多少个 Task Slot 就意味着能支持多少并发的 Task 处理。需要注意的是，一个 Task Slot 中可以执行多个 Operator，一般这些 Operator 是能被 Chain 在一起处理的。</p>
 <p><img src="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-03.png" alt="https://beancookie.github.io/images/运行Flink程序-03.png"></p>
-<h3 id="命令行运行jar"><a href="#命令行运行jar" class="headerlink" title="命令行运行jar"></a>命令行运行jar</h3><h3 id="UI界面上传jar"><a href="#UI界面上传jar" class="headerlink" title="UI界面上传jar"></a>UI界面上传jar</h3><h3 id="开发工具调试开发"><a href="#开发工具调试开发" class="headerlink" title="开发工具调试开发"></a>开发工具调试开发</h3>
+<h3 id="命令行运行jar"><a href="#命令行运行jar" class="headerlink" title="命令行运行jar"></a>命令行运行jar</h3><ol>
+<li>连接到K8S环境<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod</span><br><span class="line"></span><br><span class="line">NAME                                READY   STATUS    RESTARTS   AGE</span><br><span class="line">flink-jobmanager-7f675c8869-fhb9m   1/1     Running   0          45h</span><br><span class="line">flink-taskmanager-8869bf445-4vdf4   1/1     Running   0          46h</span><br><span class="line">flink-taskmanager-8869bf445-bqn6x   1/1     Running   0          46h</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">exec</span> -it flink-taskmanager-8869bf445-4vdf4 bash</span><br><span class="line"></span><br><span class="line">./bin/flink run examples/streaming/WordCount.jar</span><br><span class="line"></span><br><span class="line">./bin/flink run examples/streaming/WordCount.jar --input ./README.txt  --output ./word_count_out.txt</span><br><span class="line"></span><br><span class="line">cat ./word_count_out.txt/1</span><br></pre></td></tr></table></figure>
+<h3 id="UI界面上传jar"><a href="#UI界面上传jar" class="headerlink" title="UI界面上传jar"></a>UI界面上传jar</h3></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拷贝容器中的jar包</span></span><br><span class="line">docker ps</span><br><span class="line"></span><br><span class="line">CONTAINER ID   IMAGE          COMMAND                  CREATED        STATUS        PORTS     NAMES</span><br><span class="line">273f4ed76172   538a41938a2c   <span class="string">"/docker-entrypoint.…"</span>   46 hours ago   Up 46 hours             k8s_jobmanager_flink-jobmanager-7f675c8869-fhb9m_default_c2a6453a-43ad-4f01-bf9f-362ee2d32e1a_0</span><br><span class="line">f7d1a54d374f   apache/flink   <span class="string">"/docker-entrypoint.…"</span>   46 hours ago   Up 46 hours             k8s_taskmanager_flink-taskmanager-8869bf445-4vdf4_default_a4c32e5e-d4bd-484f-b5ba-a6c32bda34e1_0</span><br><span class="line">cec1f4dc93fa   apache/flink   <span class="string">"/docker-entrypoint.…"</span>   46 hours ago   Up 46 hours             k8s_taskmanager_flink-taskmanager-8869bf445-bqn6x_default_27370fb4-16c0-4d60-8972-b66b891c07e0_0</span><br><span class="line"></span><br><span class="line">docker cp f7d1a54d374f:/opt/flink/examples/streaming/WordCount.jar .</span><br></pre></td></tr></table></figure>
+
+<h4 id="通过UI界面上传jar包"><a href="#通过UI界面上传jar包" class="headerlink" title="通过UI界面上传jar包"></a>通过UI界面上传jar包</h4><p><img src="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-04.png" alt="https://beancookie.github.io/images/运行Flink程序-04.png"></p>
+<p><img src="https://beancookie.github.io/images/%E8%BF%90%E8%A1%8CFlink%E7%A8%8B%E5%BA%8F-05.png" alt="https://beancookie.github.io/images/运行Flink程序-05.png"></p>
+<h3 id="开发工具调试开发"><a href="#开发工具调试开发" class="headerlink" title="开发工具调试开发"></a>开发工具调试开发</h3>
   </div>
 </article>
 
@@ -194,7 +204,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令行运行jar"><span class="toc-number">2.</span> <span class="toc-text">命令行运行jar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UI界面上传jar"><span class="toc-number">3.</span> <span class="toc-text">UI界面上传jar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发工具调试开发"><span class="toc-number">4.</span> <span class="toc-text">开发工具调试开发</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令行运行jar"><span class="toc-number">2.</span> <span class="toc-text">命令行运行jar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UI界面上传jar"><span class="toc-number">3.</span> <span class="toc-text">UI界面上传jar</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#通过UI界面上传jar包"><span class="toc-number">3.1.</span> <span class="toc-text">通过UI界面上传jar包</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发工具调试开发"><span class="toc-number">4.</span> <span class="toc-text">开发工具调试开发</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
