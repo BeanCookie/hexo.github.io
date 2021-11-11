@@ -14,8 +14,9 @@
 <meta property="og:description" content="什么是并行处理众所周知，对于计算密集型或数据密集型这样需要计算量比较大的工作，并行计算或分而治之是解决这一类问题非常有效的手段。在这个手段中比较关键的部分是，如何对计算资源进行合理分配。 举个栗子，假设面包店制作面包需要经过三道工序，分别为A：将面粉、鸡蛋和糖等原料加工成面团，B：将面团放入烤箱烘焙，C：将烘焙好的面包放进包装袋。  方式一：将三道工序分配给不同的工人操作，这种方式，每个工序制作完">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86%E5%92%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F-01.png">
+<meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86%E5%92%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F-02.png">
 <meta property="article:published_time" content="2021-11-09T08:56:17.000Z">
-<meta property="article:modified_time" content="2021-11-11T08:32:26.188Z">
+<meta property="article:modified_time" content="2021-11-11T09:23:52.171Z">
 <meta property="article:author" content="LuZhong">
 <meta property="article:tag" content="Flink">
 <meta name="twitter:card" content="summary">
@@ -108,7 +109,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是并行处理"><span class="toc-number">1.</span> <span class="toc-text">什么是并行处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink中的并行操作"><span class="toc-number">2.</span> <span class="toc-text">Flink中的并行操作</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是并行处理"><span class="toc-number">1.</span> <span class="toc-text">什么是并行处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink中的并行操作"><span class="toc-number">2.</span> <span class="toc-text">Flink中的并行操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编程范式"><span class="toc-number">3.</span> <span class="toc-text">编程范式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink对多范式的支持"><span class="toc-number">4.</span> <span class="toc-text">Flink对多范式的支持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#FlinkAPI概览"><span class="toc-number">4.1.</span> <span class="toc-text">FlinkAPI概览</span></a></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -168,6 +169,21 @@
 <p>像上述按照面包制作工序进行划分，以及将面包本身进行划分，就是所谓的计算的并行性和数据并行性。</p>
 <h3 id="Flink中的并行操作"><a href="#Flink中的并行操作" class="headerlink" title="Flink中的并行操作"></a>Flink中的并行操作</h3><p><img src="https://beancookie.github.io/images/Flink%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86%E5%92%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F-01.png" alt="https://beancookie.github.io/images/Flink并行处理和编程范式-01.png"></p>
 <p>在图中，处理工序A的员工，假设还承担了一些额外任务，比如把面粉搬运到厨房；负责工序C的员工也有额外任务，就是等所有员工把面包制作好后，还需将面包搬运到商店货架。据此，可以把图中所有的节点划分为三个类别。第一个类别；第二类是数据处理节点；它们大多时候不需要和外部系统打交道；最后一个类别负责将整个计算逻辑写到某个外部系统。这三类节点分别就是Source节点、Transform节点和Sink节点。</p>
+<h3 id="编程范式"><a href="#编程范式" class="headerlink" title="编程范式"></a>编程范式</h3><p>假设有一个数据集，其中包含 1~10 十个数字，如果把每一个数字都乘以 2并做累计求和操作，怎么实现呢？办法有很多，如果用编程来解决有两个角度：</p>
+<ol>
+<li><p>命令式编程</p>
+<p>一步一步的相当 于告诉机器应该怎样生成一些数据结构，怎样的用这些数据结构去存储一些临时的中 间结果，怎样把这些中间结果再转换成为最终的结果，相当于一步一步告诉机器如何去做。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span>[] numbers = &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>&#125;;</span><br><span class="line"><span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; numbers.length; i++) &#123;</span><br><span class="line">    numbers[i] = numbers[i] * <span class="number">2</span>;</span><br><span class="line">    sum += numbers[i];</span><br><span class="line">&#125;</span><br><span class="line">System.out.println(sum);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>声明式编程</p>
+<p>声明式编程里通常只需要告诉机器去完成怎样的任务，而不需要像命令式那样详细传递。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> sum = Stream.of(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>).map(x -&gt; x * <span class="number">2</span>).mapToInt(x -&gt; x).sum();</span><br><span class="line">System.out.println(sum);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="Flink对多范式的支持"><a href="#Flink对多范式的支持" class="headerlink" title="Flink对多范式的支持"></a>Flink对多范式的支持</h3><h4 id="FlinkAPI概览"><a href="#FlinkAPI概览" class="headerlink" title="FlinkAPI概览"></a>FlinkAPI概览</h4><p><img src="https://beancookie.github.io/images/Flink%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86%E5%92%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F-02.png" alt="https://beancookie.github.io/images/Flink并行处理和编程范式-02.png"></p>
+<p>在旧版本的 Flink 里，它的API层次是自上而下的。最上层表示我们可以用比较高级的API，或者说声明程度更高的Table API以及SQL的方式来编写逻辑。所有SQL和Table API编写的内容都会被Flink内部翻译和优化成一个用DataStream API实现的程序。再往下一层，DataStream API 的程序会被表示成为一系列Transformation，最终Transformation会被翻译成JobGraph。</p>
+<p>新版本的Flink在流批一体这一目标的引导下，Flink现在已经对底层的算子、调度、Shuffle 进行了统一的抽象，以统一的方式向上支持 DataStream API和Table API两套接口。 DataStream API是一种比较偏物理层的接口，Table API是一种 Declearetive 的接口， 这两套接口对流和批来说都是统一的。</p>
 
   </div>
 </article>
@@ -193,7 +209,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是并行处理"><span class="toc-number">1.</span> <span class="toc-text">什么是并行处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink中的并行操作"><span class="toc-number">2.</span> <span class="toc-text">Flink中的并行操作</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是并行处理"><span class="toc-number">1.</span> <span class="toc-text">什么是并行处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink中的并行操作"><span class="toc-number">2.</span> <span class="toc-text">Flink中的并行操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编程范式"><span class="toc-number">3.</span> <span class="toc-text">编程范式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flink对多范式的支持"><span class="toc-number">4.</span> <span class="toc-text">Flink对多范式的支持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#FlinkAPI概览"><span class="toc-number">4.1.</span> <span class="toc-text">FlinkAPI概览</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
