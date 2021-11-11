@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="什么是规则引擎马丁福勒 曾给过如下定义  规则引擎就是提供一种替代的计算模型。与通常的命令式模型不同，命令式模型由带有条件和循环的顺序命令组成，规则引擎基于生产规则系统。这是一组产生式规则，每个规则都有一个条件和一个动作 - 简单地说，您可以将其视为一堆 if-then 语句。 精妙之处在于规则可以按任何顺序编写，引擎会决定何时使用对顺序有意义的任何方式来计算它们。考虑它的一个好方法是系统运行所有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 规则引擎Easy Rules">
+<meta property="og:url" content="http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="什么是规则引擎马丁福勒 曾给过如下定义  规则引擎就是提供一种替代的计算模型。与通常的命令式模型不同，命令式模型由带有条件和循环的顺序命令组成，规则引擎基于生产规则系统。这是一组产生式规则，每个规则都有一个条件和一个动作 - 简单地说，您可以将其视为一堆 if-then 语句。 精妙之处在于规则可以按任何顺序编写，引擎会决定何时使用对顺序有意义的任何方式来计算它们。考虑它的一个好方法是系统运行所有">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-11-10T09:42:31.000Z">
+<meta property="article:modified_time" content="2021-11-11T06:54:37.422Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="规则引擎">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java 规则引擎Easy Rules</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/11/09/Flink%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86%E5%92%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&text=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&is_video=false&description=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java 规则引擎Easy Rules&body=Check out this article: http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&name=Java 规则引擎Easy Rules&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&t=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是规则引擎"><span class="toc-number">1.</span> <span class="toc-text">什么是规则引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用Easy-Rules定义规则"><span class="toc-number">2.</span> <span class="toc-text">使用Easy Rules定义规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在Easy-Rules中使用规则"><span class="toc-number">3.</span> <span class="toc-text">在Easy Rules中使用规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合规则"><span class="toc-number">4.</span> <span class="toc-text">组合规则</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Links"><span class="toc-number">4.1.</span> <span class="toc-text">Links</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Java 规则引擎Easy Rules
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-11-10T09:42:31.000Z" itemprop="datePublished">2021-11-10</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Java/">Java</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E/" rel="tag">规则引擎</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="什么是规则引擎"><a href="#什么是规则引擎" class="headerlink" title="什么是规则引擎"></a>什么是规则引擎</h3><p><em>马丁福勒</em> 曾给过如下定义</p>
+<blockquote>
+<p>规则引擎就是提供一种替代的计算模型。与通常的命令式模型不同，命令式模型由带有条件和循环的顺序命令组成，规则引擎基于<a href="https://martinfowler.com/dslCatalog/productionRule.html" target="_blank" rel="noopener">生产规则系统</a>。这是一组产生式规则，每个规则都有一个条件和一个动作 - 简单地说，您可以将其视为一堆 if-then 语句。</p>
+<p>精妙之处在于规则可以按任何顺序编写，引擎会决定何时使用对顺序有意义的任何方式来计算它们。考虑它的一个好方法是系统运行所有规则，选择条件成立的规则，然后执行相应的操作。这样做的好处是，很多问题都很自然地符合这个模型：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if car.owner.hasCellPhone then premium +&#x3D; 100;</span><br><span class="line">if car.model.theftRating &gt; 4 then premium +&#x3D; 200;</span><br><span class="line">if car.owner.livesInDodgyArea &amp;&amp; car.model.theftRating &gt; 2 then premium +&#x3D; 300;</span><br></pre></td></tr></table></figure>
+
+<p>规则引擎是一种工具，它使得这种计算模型编程变得更容易。它可能是一个完整的开发环境，或者一个可以在传统平台上工作的框架。生产规则计算模型最适合仅解决一部分计算问题，因此规则引擎可以更好地嵌入到较大的系统中。</p>
+<p>你可以自己构建一个简单的规则引擎。你所需要做的就是创建一组带有条件和动作的对象，将它们存储在一个集合中，然后遍历它们以评估条件并执行这些动作。</p>
+</blockquote>
+<h3 id="使用Easy-Rules定义规则"><a href="#使用Easy-Rules定义规则" class="headerlink" title="使用Easy Rules定义规则"></a>使用Easy Rules定义规则</h3><p>大多数业务规则可以用以下定义表示：</p>
+<ul>
+<li><p>Name : 一个命名空间下的唯一的规则名称</p>
+</li>
+<li><p>Description : 规则的简要描述</p>
+</li>
+<li><p>Priority : 相对于其他规则的优先级</p>
+</li>
+<li><p>Facts : 事实，可立即为要处理的数据</p>
+</li>
+<li><p>Conditions : 为了应用规则而必须满足的一组条件</p>
+</li>
+<li><p>Actions : 当条件满足时执行的一组动作 </p>
+</li>
+</ul>
+<p>Easy Rules中可以使用多种方式定义规则，使用过程中可以根据情况使用最合适的方式。</p>
+<ol>
+<li><p>Java注解方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Rule</span>(name = <span class="string">"weather rule"</span>, description = <span class="string">"if it rains then take an umbrella"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WeatherRule</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Condition</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">itRains</span><span class="params">(@Fact(<span class="string">"rain"</span>)</span> <span class="keyword">boolean</span> rain) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> rain;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Action</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">takeAnUmbrella</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"It rains, take an umbrella!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="2">
+<li><p>使用链式API方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Rule weatherRule = <span class="keyword">new</span> RuleBuilder()</span><br><span class="line">        .name(<span class="string">"weather rule"</span>)</span><br><span class="line">        .description(<span class="string">"if it rains then take an umbrella"</span>)</span><br><span class="line">        .when(facts -&gt; facts.get(<span class="string">"rain"</span>).equals(<span class="keyword">true</span>))</span><br><span class="line">        .then(facts -&gt; System.out.println(<span class="string">"It rains, take an umbrella!"</span>))</span><br><span class="line">        .build();</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="3">
+<li><p>使用Java表达式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Rule weatherRule = <span class="keyword">new</span> MVELRule()</span><br><span class="line">        .name(<span class="string">"weather rule"</span>)</span><br><span class="line">        .description(<span class="string">"if it rains then take an umbrella"</span>)</span><br><span class="line">        .when(<span class="string">"rain == true"</span>)</span><br><span class="line">        .then(<span class="string">"System.out.println(\"It rains, take an umbrella!\");"</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="4">
+<li><p>使用EL表达式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printRain</span><span class="params">(String message)</span> </span>&#123;</span><br><span class="line">     System.out.println(message);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Rule weatherRule = <span class="keyword">new</span> SpELRule()</span><br><span class="line">  .name(<span class="string">"weather rule"</span>)</span><br><span class="line">  .description(<span class="string">"if it rains then take an umbrella"</span>)</span><br><span class="line">  .when(<span class="string">"#&#123; #rain == true &#125;"</span>)</span><br><span class="line">  .then(<span class="string">"#&#123; T(example.RuleApp).printRain(\"It rains, take an umbrella!\") &#125;"</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="5">
+<li><p>使用配置文件定义规则</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># weather-rule.yml</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">"weather rule"</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">"if it rains then take an umbrella"</span></span><br><span class="line"><span class="attr">condition:</span> <span class="string">"rain == true"</span></span><br><span class="line"><span class="attr">actions:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">"System.out.println(\"It rains, take an umbrella!\");"</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MVELRuleFactory ruleFactory = <span class="keyword">new</span> MVELRuleFactory(<span class="keyword">new</span> YamlRuleDefinitionReader());</span><br><span class="line">Rule weatherRule = ruleFactory.createRule(<span class="keyword">new</span> FileReader(<span class="string">"weather-rule.yml"</span>));</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="在Easy-Rules中使用规则"><a href="#在Easy-Rules中使用规则" class="headerlink" title="在Easy Rules中使用规则"></a>在Easy Rules中使用规则</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// define facts</span></span><br><span class="line">        Facts facts = <span class="keyword">new</span> Facts();</span><br><span class="line">        facts.put(<span class="string">"rain"</span>, <span class="keyword">true</span>);</span><br><span class="line">        <span class="comment">// facts.put("rain", false);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// define rules</span></span><br><span class="line">        Rule weatherRule = ...</span><br><span class="line">        Rules rules = <span class="keyword">new</span> Rules();</span><br><span class="line">        rules.register(weatherRule);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// fire rules on known facts</span></span><br><span class="line">        RulesEngine rulesEngine = <span class="keyword">new</span> DefaultRulesEngine();</span><br><span class="line">        rulesEngine.fire(rules, facts);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="组合规则"><a href="#组合规则" class="headerlink" title="组合规则"></a>组合规则</h3><p>CompositeRule由一组规则组成。这是一个典型地组合设计模式的实现。组合规则是一个抽象概念，因为可以以不同方式触发组合规则。</p>
+<p>Easy Rules自带三种CompositeRule实现：</p>
+<ol>
+<li>UnitRuleGroup : 要么应用所有规则，要么不应用任何规则（AND逻辑）</li>
+<li>ActivationRuleGroup : 它触发第一个适用规则，并忽略组中的其他规则（XOR逻辑）</li>
+<li>ConditionalRuleGroup : 如果具有最高优先级的规则计算结果为true，则触发其余规则</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Rule weatherRule1 = <span class="keyword">new</span> RuleBuilder()</span><br><span class="line">        .name(<span class="string">"weather rule1"</span>)</span><br><span class="line">        .description(<span class="string">"if it wind then add clothes"</span>)</span><br><span class="line">        .when(facts -&gt; facts.get(<span class="string">"rain"</span>).equals(<span class="keyword">true</span>))</span><br><span class="line">        .then(facts -&gt; System.out.println(<span class="string">"It wind, add clothes!"</span>))</span><br><span class="line">        .build();</span><br><span class="line"></span><br><span class="line">Rule weatherRule2 = <span class="keyword">new</span> SpELRule()</span><br><span class="line">        .name(<span class="string">"weather rule2"</span>)</span><br><span class="line">        .description(<span class="string">"if it rains then take an umbrella"</span>)</span><br><span class="line">        .when(<span class="string">"#&#123; #rain == true &#125;"</span>)</span><br><span class="line">        .then(<span class="string">"#&#123; T(example.RuleApp).printRain(\"It rains, take an umbrella!\") &#125;"</span>);</span><br><span class="line"></span><br><span class="line">Facts facts = <span class="keyword">new</span> Facts();</span><br><span class="line">facts.put(<span class="string">"rain"</span>, <span class="keyword">false</span>);</span><br><span class="line">facts.put(<span class="string">"wind"</span>, <span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">UnitRuleGroup ruleGroup = <span class="keyword">new</span> UnitRuleGroup();</span><br><span class="line">ruleGroup.addRule(weatherRule1);</span><br><span class="line">ruleGroup.addRule(weatherRule2);</span><br><span class="line"></span><br><span class="line"><span class="comment">// define rules</span></span><br><span class="line">Rules rules = <span class="keyword">new</span> Rules();</span><br><span class="line">rules.register(ruleGroup);</span><br><span class="line"></span><br><span class="line"><span class="comment">// fire rules on known facts</span></span><br><span class="line">RulesEngine rulesEngine = <span class="keyword">new</span> DefaultRulesEngine();</span><br><span class="line">rulesEngine.fire(rules, facts);</span><br></pre></td></tr></table></figure>
+
+<h4 id="Links"><a href="#Links" class="headerlink" title="Links"></a>Links</h4><p><a href="https://martinfowler.com/bliki/RulesEngine.html" target="_blank" rel="noopener">https://martinfowler.com/bliki/RulesEngine.html</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是规则引擎"><span class="toc-number">1.</span> <span class="toc-text">什么是规则引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用Easy-Rules定义规则"><span class="toc-number">2.</span> <span class="toc-text">使用Easy Rules定义规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在Easy-Rules中使用规则"><span class="toc-number">3.</span> <span class="toc-text">在Easy Rules中使用规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合规则"><span class="toc-number">4.</span> <span class="toc-text">组合规则</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Links"><span class="toc-number">4.1.</span> <span class="toc-text">Links</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&text=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&is_video=false&description=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java 规则引擎Easy Rules&body=Check out this article: http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&title=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&name=Java 规则引擎Easy Rules&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/10/Java-%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EEasy-Rules/&t=Java 规则引擎Easy Rules" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://lib.baomitu.com/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://lib.baomitu.com/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>
