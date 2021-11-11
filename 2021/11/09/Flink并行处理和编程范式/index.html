@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://beancookie.github.io/images/Flink%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86%E5%92%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F-01.png">
 <meta property="article:published_time" content="2021-11-09T08:56:17.000Z">
-<meta property="article:modified_time" content="2021-11-11T08:22:35.940Z">
+<meta property="article:modified_time" content="2021-11-11T08:32:26.188Z">
 <meta property="article:author" content="LuZhong">
 <meta property="article:tag" content="Flink">
 <meta name="twitter:card" content="summary">
@@ -167,7 +167,7 @@
 </ol>
 <p>像上述按照面包制作工序进行划分，以及将面包本身进行划分，就是所谓的计算的并行性和数据并行性。</p>
 <h3 id="Flink中的并行操作"><a href="#Flink中的并行操作" class="headerlink" title="Flink中的并行操作"></a>Flink中的并行操作</h3><p><img src="https://beancookie.github.io/images/Flink%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86%E5%92%8C%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F-01.png" alt="https://beancookie.github.io/images/Flink并行处理和编程范式-01.png"></p>
-<p>在图中，处理工序A的员工，假设还承担了一些额外任务，比如把面粉搬运到厨房；负责工序C的员工也有额外任务，就是等所有员工把面包制作好后，还需将面包搬运到商店货架。据此，可以把图中所有的节点划分为三个类别。第一个类别是Source，它们负责获取数据；第二类是数据处理节点，它们大多时候不需要和外部系统打交道；最后一个类别负责将整个计算逻辑写到某个外部系统。这三类节点分别就是Source节点、Transform节点和Sink节点。</p>
+<p>在图中，处理工序A的员工，假设还承担了一些额外任务，比如把面粉搬运到厨房；负责工序C的员工也有额外任务，就是等所有员工把面包制作好后，还需将面包搬运到商店货架。据此，可以把图中所有的节点划分为三个类别。第一个类别；第二类是数据处理节点；它们大多时候不需要和外部系统打交道；最后一个类别负责将整个计算逻辑写到某个外部系统。这三类节点分别就是Source节点、Transform节点和Sink节点。</p>
 
   </div>
 </article>
