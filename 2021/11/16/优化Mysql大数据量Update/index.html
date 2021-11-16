@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="引言最近废话文学非常流行，比如什么听君一席话，如听一席话，我家门口有两棵树，一颗是枣树，另一颗也是枣树。废话文学虽然很有趣，但是却大大降低了传递信息的速度。 项目中的实际问题实际项目中经常会遇到这样一类问题：Mysql需要定时修改某张表的状态字段，比如这里需要将一批物联网终端的状态置为unbind(未绑定)。通常情况我们会写成这样一段代码 12345678910111213141516171819">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优化Mysql大数据量Update">
+<meta property="og:url" content="http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/index.html">
+<meta property="og:site_name" content="Lzzz的博客">
+<meta property="og:description" content="引言最近废话文学非常流行，比如什么听君一席话，如听一席话，我家门口有两棵树，一颗是枣树，另一颗也是枣树。废话文学虽然很有趣，但是却大大降低了传递信息的速度。 项目中的实际问题实际项目中经常会遇到这样一类问题：Mysql需要定时修改某张表的状态字段，比如这里需要将一批物联网终端的状态置为unbind(未绑定)。通常情况我们会写成这样一段代码 12345678910111213141516171819">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-11-16T01:58:26.000Z">
+<meta property="article:modified_time" content="2021-11-16T02:25:43.930Z">
+<meta property="article:author" content="LuZhong">
+<meta property="article:tag" content="Mysql调优">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>优化Mysql大数据量Update</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/11/12/Flink-CDC/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&text=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&is_video=false&description=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=优化Mysql大数据量Update&body=Check out this article: http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&name=优化Mysql大数据量Update&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&t=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#项目中的实际问题"><span class="toc-number">2.</span> <span class="toc-text">项目中的实际问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不说废话的REPLACE-INTO"><span class="toc-number">3.</span> <span class="toc-text">不说废话的REPLACE INTO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#REPLACE-INTO原理"><span class="toc-number">4.</span> <span class="toc-text">REPLACE INTO原理</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        优化Mysql大数据量Update
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">LuZhong</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-11-16T01:58:26.000Z" itemprop="datePublished">2021-11-16</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Mysql/">Mysql</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Mysql%E8%B0%83%E4%BC%98/" rel="tag">Mysql调优</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><p>最近<strong>废话文学</strong>非常流行，比如什么<em>听君一席话，如听一席话</em>，<em>我家门口有两棵树，一颗是枣树，另一颗也是枣树</em>。<strong>废话文学</strong>虽然很有趣，但是却大大降低了传递信息的速度。</p>
+<h3 id="项目中的实际问题"><a href="#项目中的实际问题" class="headerlink" title="项目中的实际问题"></a>项目中的实际问题</h3><p>实际项目中经常会遇到这样一类问题：Mysql需要定时修改某张表的状态字段，比如这里需要将一批物联网终端的状态置为unbind(未绑定)。通常情况我们会写成这样一段代码</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> MACHINE_COUNT = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">update</span><span class="params">(db *sql.DB, id <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	r, err := db.Exec(<span class="string">"update machine_state set state = 'unbind' where machine_id = ?"</span>, id)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">"exec failed, "</span>, r, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">r.GET(<span class="string">"/update"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		startTime := time.Now().Unix()</span><br><span class="line">		fmt.Println(<span class="string">"start time:"</span>, startTime)</span><br><span class="line">		<span class="keyword">for</span> i := <span class="number">1</span>; i &lt; MACHINE_COUNT; i++ &#123;</span><br><span class="line">			update(db, i)</span><br><span class="line">		&#125;</span><br><span class="line">		endTime := time.Now().Unix()</span><br><span class="line">		fmt.Println(<span class="string">"end time:"</span>, endTime, <span class="string">"consume:"</span>, (endTime - startTime))</span><br><span class="line"></span><br><span class="line">		c.JSON(<span class="number">200</span>, gin.H&#123;</span><br><span class="line">			<span class="string">"message"</span>: <span class="string">"success"</span>,</span><br><span class="line">		&#125;)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 执行时间 </span></span><br><span class="line"><span class="comment">// start time: 1637027706</span></span><br><span class="line"><span class="comment">// end time: 1637027784 consume: 78(秒)</span></span><br></pre></td></tr></table></figure>
+
+<p>当我们需要更新的终端数量不是很多时并没有什么问题，但是如果一次需要更新一万台或者更多数量的终端时，更新速度就会变得难以接受，在更新阶段Mysql的负载也会疯狂飙升。</p>
+<p>那么联想到我们上诉所说的废话问题，那我们的上段代码翻译成白话文可能是这样的效果：<strong>我有一万台终端的数量需要更新，第一台是1号机械，把它的状态更新为未绑定，第二台是2号机械，把它的状态更新为未绑定，第三台是2号机械，把它的状态更新为未绑定。。。</strong>这段话一说Mysql可就倒了霉了，需要不停的建立TCP链接，解析区别不大的SQL，扫描差不多位置的磁盘。</p>
+<h3 id="不说废话的REPLACE-INTO"><a href="#不说废话的REPLACE-INTO" class="headerlink" title="不说废话的REPLACE INTO"></a>不说废话的REPLACE INTO</h3><p>下面就让我们用人狠话不多的<strong>REPLACE INTO</strong>，来优化一下上面的代码吧</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">quicklyUpdate</span><span class="params">(db *sql.DB, updateMap <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	updateSql := <span class="string">"replace into machine_state(machine_id, state) values"</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> id, state := <span class="keyword">range</span> updateMap &#123;</span><br><span class="line">		updateSql += fmt.Sprintf(<span class="string">"(%d,'%s'),"</span>, id, state)</span><br><span class="line">	&#125;</span><br><span class="line">	updateSql = updateSql[:<span class="built_in">len</span>(updateSql)<span class="number">-1</span>]</span><br><span class="line">	r, err := db.Exec(updateSql)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">"exec failed, "</span>, r, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">r.GET(<span class="string">"/quickly-update"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		startTime := time.Now().Unix()</span><br><span class="line">		fmt.Println(<span class="string">"start time:"</span>, startTime)</span><br><span class="line">		updateMap := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">string</span>)</span><br><span class="line">		<span class="keyword">for</span> i := <span class="number">1</span>; i &lt; MACHINE_COUNT; i++ &#123;</span><br><span class="line">			updateMap[i] = <span class="string">"online"</span></span><br><span class="line">		&#125;</span><br><span class="line">		quicklyUpdate(db, updateMap)</span><br><span class="line"></span><br><span class="line">		endTime := time.Now().Unix()</span><br><span class="line">		fmt.Println(<span class="string">"end time:"</span>, endTime, <span class="string">"consume:"</span>, (endTime - startTime))</span><br><span class="line"></span><br><span class="line">		c.JSON(<span class="number">200</span>, gin.H&#123;</span><br><span class="line">			<span class="string">"message"</span>: <span class="string">"success"</span>,</span><br><span class="line">		&#125;)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 执行时间 </span></span><br><span class="line"><span class="comment">// start time: 1637027839</span></span><br><span class="line"><span class="comment">// end time: 1637027840 consume: 1(秒)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="REPLACE-INTO原理"><a href="#REPLACE-INTO原理" class="headerlink" title="REPLACE INTO原理"></a>REPLACE INTO原理</h3><p>replace into 跟 insert 功能类似，不同点在于：replace into 首先尝试插入数据到表中， 1. 如果发现表中已经有此行数据(根据主键或者唯一索引判断)则先删除此行数据，然后插入新的数据。 2. 否则，直接插入新数据。</p>
+<p>要注意的是：插入数据的表必须有主键或者是唯一索引！否则的话，replace into 会直接插入数据，这将导致表中出现重复的数据。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#项目中的实际问题"><span class="toc-number">2.</span> <span class="toc-text">项目中的实际问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不说废话的REPLACE-INTO"><span class="toc-number">3.</span> <span class="toc-text">不说废话的REPLACE INTO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#REPLACE-INTO原理"><span class="toc-number">4.</span> <span class="toc-text">REPLACE INTO原理</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&text=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&is_video=false&description=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=优化Mysql大数据量Update&body=Check out this article: http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&title=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&name=优化Mysql大数据量Update&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2021/11/16/%E4%BC%98%E5%8C%96Mysql%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8FUpdate/&t=优化Mysql大数据量Update" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2021
+    LuZhong
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://lib.baomitu.com/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://lib.baomitu.com/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>
